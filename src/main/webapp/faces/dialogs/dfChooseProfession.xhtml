@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+	<title>Pick a Profession</title>
+</h:head>
+
+<h:body>
+	<h:outputStylesheet library="default" name="css/bo-style.css" />
+	<h:form>
+		<p:selectOneMenu id="professions" value="#{professionBean.profession}" effect="fold" >
+			<p:ajax listener="#{professionBean.selectProfessionAndCloseDialog}" />
+			<f:selectItem itemLabel="Select Profession" itemValue="-1" noSelectionOption="true" />
+			<f:selectItems value="#{selectionsBean.professionSelections}" />
+		</p:selectOneMenu>
+	</h:form>
+</h:body>
+
+</html>

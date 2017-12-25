@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" 
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+	<ui:composition template="/faces/templates/main-template.xhtml">
+		<ui:define name="additionalScripts">
+			<ui:include src="/faces/misc/google-maps-script.xhtml"></ui:include>
+		</ui:define>
+	
+		<ui:define name="content">		
+			
+			<p:panel>
+				<h:form id="mainForm">
+				
+					<h:messages />
+    	    	    
+    	    	    <ui:fragment rendered="#{empty tradesmenBean.tradesmanView}">
+    	    	    	<ui:include src="/faces/layout/tradesmenTable.xhtml" />
+    	    	    </ui:fragment>
+    	    	    
+    	    	    <ui:fragment rendered="#{not empty tradesmenBean.tradesmanView}">
+    	    	    	<p:commandButton class="m-bottom-10" value="Close" action="#{tradesmenBean.unselectTrademan()}" update="@form" />
+    	    	    	
+    	    	    	<p:tabView id="mainTabs">
+					        <p:tab title="#{tradesmenBean.tradesmanView.newTradesman ? 'New Tradesman' : 'Profile'}">
+					            <ui:include src="/faces/layout/tradesmanProfile.xhtml" >
+    	    	    				<ui:param name="tradesmanView" value="#{tradesmenBean.tradesmanView}" />
+    	    	    			</ui:include>
+					        </p:tab>
+					        <p:tab title="Statistics" rendered="#{not tradesmenBean.tradesmanView.newTradesman}">
+					            <ui:include src="/faces/layout/tradesmanStatistics.xhtml" />
+					        </p:tab>
+					     </p:tabView>
+    	    	    
+    	    	    	 <p:commandButton class="m-top-10" value="Close" action="#{tradesmenBean.unselectTrademan()}" update="@form" />
+    	    	    </ui:fragment>
+    	    	    
+				</h:form>
+            </p:panel>
+        
+		</ui:define>
+	</ui:composition>
+</html>

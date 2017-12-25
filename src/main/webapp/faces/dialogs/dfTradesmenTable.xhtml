@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://xmlns.jcp.org/jsf/core">
+     
+    <h:head>
+        <title>Pick A Tradesmen</title>
+        <style>
+			.small-buttons span {
+			    font-size: 7px;
+			}
+        </style>
+    </h:head>
+     
+    <h:body>
+        <h:form>
+            <p:dataTable var="tradesman" widgetVar="tradesmenTable" value="#{tradesmenBean.tradesmen}" filteredValue="#{tradesmenBean.filteredTradesmen}" 
+                         resizableColumns="true" emptyMessage="No Tradesmen available for current profession" >
+                
+                <f:facet name="header">
+					<p:outputPanel styleClass="m-top-10">
+				    	<h:outputText value="Search all fields:" />
+				        <p:inputText id="globalFilter" onkeyup="PF('tradesmenTable').filter()" placeholder="Enter keyword"/>
+				    </p:outputPanel>
+				</f:facet>
+                
+                <p:column width="255" headerText="Id" sortBy="#{tradesman._id.toHexString()}" filterBy="#{tradesman._id.toHexString()}" filterMatchMode="contains">
+                    <h:outputText value="#{tradesman._id.toHexString()}" />
+                </p:column>
+ 
+                <p:column headerText="Contact Name" sortBy="#{tradesman.contactName}" filterBy="#{tradesman.contactName}" filterMatchMode="contains">
+                    <h:outputText value="#{tradesman.contactName}" />
+                </p:column>
+ 
+                <p:column headerText="Company Name" sortBy="#{tradesman.companyName}" filterBy="#{tradesman.companyName}" filterMatchMode="contains">
+                    <h:outputText value="#{tradesman.companyName}" />
+                </p:column>
+ 
+                <p:column width="145" headerText="Telephone" sortBy="#{tradesman.telephone}" filterBy="#{tradesman.telephone}" filterMatchMode="contains" >
+                    <h:outputText value="#{tradesman.telephone}" />
+                </p:column>
+                
+                <p:column width="65" headerText="Active" sortBy="#{tradesman.active}" filterBy="#{tradesman.active}" filterMatchMode="equals">
+					<f:facet name="filter">
+		                <p:selectOneButton onchange="PF('tradesmenTable').filter()" styleClass="small-buttons">
+		                    <f:converter converterId="javax.faces.Boolean" />
+		                    <f:selectItem itemLabel="All" itemValue="" />
+		                    <f:selectItem itemLabel="Y" itemValue="true" />
+		                    <f:selectItem itemLabel="N" itemValue="false" />
+		            	</p:selectOneButton>
+		            </f:facet>
+					<h:outputText value="#{tradesman.active ? 'Yes' : 'No'}" />
+                </p:column>
+ 
+                <p:column style="width:32px;text-align: center">
+                    <p:commandButton icon="ui-icon-check" actionListener="#{tradesmenBean.selectTradesmanFromDialog(tradesman)}" />
+                </p:column>
+            </p:dataTable>
+        </h:form>
+    </h:body>
+     
+</html>

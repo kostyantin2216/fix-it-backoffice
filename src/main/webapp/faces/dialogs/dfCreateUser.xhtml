@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+	<title>Create Temp User</title>
+</h:head>
+
+<h:body>
+	<h:outputStylesheet library="default" name="css/bo-style.css" />
+	<h:form>
+		<table>
+			<tr>
+				<td><p:outputLabel for="name" value="Name: " /></td>
+				<td><p:inputText id="name"
+						value="#{userBean.tempUserView.name}" required="true" /></td>
+			</tr>
+			<tr>
+				<td><p:outputLabel for="email" value="Email: " /></td>
+				<td><p:inputText id="email" 
+						value="#{userBean.tempUserView.email}">
+						<f:validator validatorId="fixit.emailValidator" />
+					</p:inputText></td>
+			</tr>
+			<tr>
+				<td><p:outputLabel for="telephone" value="Telephone: " /></td>
+				<td><p:inputText id="telephone"
+						value="#{userBean.tempUserView.telephone}" required="true" /></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<p:commandButton value="Create"
+						icon="ui-icon-check" validateClient="true" styleClass="center m-top-20"
+						actionListener="#{userBean.createUserAndCloseDialog}" /></td>
+			</tr>
+		</table>
+	</h:form>
+</h:body>
+
+</html>

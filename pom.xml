@@ -1,0 +1,135 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.fix-it</groupId>
+	<artifactId>fix-it-backoffice</artifactId>
+	<version>0.0.1</version>
+	  
+	<packaging>war</packaging>
+	  
+	<name>Fixxit Back Office</name>
+	<description>Fix it fron end back office</description>
+	
+	<properties>
+  		<components.version>0.0.2</components.version>
+		<spring.version>4.3.9.RELEASE</spring.version>
+		<spring.security.version>4.2.3.RELEASE</spring.security.version>
+		<faces.version>2.2.15</faces.version>
+		<primefaces.version>6.1</primefaces.version>
+		<poi.version>3.13</poi.version>
+		<servlet.version>4.0.0</servlet.version>
+		<itext.version>2.1.7</itext.version>
+	</properties>
+
+	<repositories>
+	    <repository>
+	        <id>prime-repo</id>
+	        <name>PrimeFaces Maven Repository</name>
+	        <url>http://repository.primefaces.org</url>
+	        <layout>default</layout>
+	    </repository>
+	</repositories>
+
+	<dependencies>
+		
+		<dependency>
+  			<groupId>com.fix-it</groupId>
+  			<artifactId>fix-it-components</artifactId>
+  			<version>${components.version}</version>
+  		</dependency>
+  		
+		<!-- Spring -->  		
+  		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<!-- Spring Security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring.security.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring.security.version}</version>
+		</dependency>
+		
+		<!-- JSF -->
+		<dependency>
+		    <groupId>com.sun.faces</groupId>
+		    <artifactId>jsf-api</artifactId>
+		    <version>${faces.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.sun.faces</groupId>
+		    <artifactId>jsf-impl</artifactId>
+		    <version>${faces.version}</version>
+		</dependency>
+		
+		<!-- Primefaces -->
+		<dependency>
+		    <groupId>org.primefaces</groupId>
+		    <artifactId>primefaces</artifactId>
+		    <version>${primefaces.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.primefaces.themes</groupId>
+			<artifactId>start</artifactId>
+			<version>1.0.10</version>
+		</dependency>
+		
+		<!-- Apache POI -->
+		<dependency>
+    		<groupId>org.apache.poi</groupId>
+    		<artifactId>poi</artifactId>
+    		<version>${poi.version}</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.apache.poi</groupId>
+    		<artifactId>poi-ooxml</artifactId>
+    		<version>${poi.version}</version>
+		</dependency>
+		
+		<!-- iText -->
+		<dependency>
+		    <groupId>com.lowagie</groupId>
+		    <artifactId>itext</artifactId>
+		    <version>${itext.version}</version>
+		</dependency>		
+		
+		<!-- Servlet -->
+		<dependency>
+		    <groupId>javax.servlet</groupId>
+		    <artifactId>javax.servlet-api</artifactId>
+		    <version>${servlet.version}</version>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<!-- JSTL -->
+		<dependency>
+		    <groupId>javax.servlet</groupId>
+		    <artifactId>jstl</artifactId>
+		    <version>1.2</version>
+		</dependency>
+				
+	</dependencies>
+  
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+  
+</project>

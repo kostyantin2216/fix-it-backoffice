@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition>
+
+	<div class="ui-g">
+
+		<div class="ui-g-6">
+			<div class="title">Status</div>
+			<p:selectOneButton id="orderTableType"
+				value="#{orderBean.tableFilter.tableType}">
+				<p:ajax update="mainForm:orders" event="change"
+					listener="#{orderBean.onTableFilterChanged()}" />
+				<f:selectItems value="#{selectionsBean.orderTableTypes}" />
+			</p:selectOneButton>
+		</div>
+		<div class="ui-g-6">
+			<div class="title">Profession</div>
+			<p:selectOneMenu id="professionInput" value="#{orderBean.tableFilter.professionId}">
+				<p:ajax event="change" update="mainForm:orders" listener="#{orderBean.onTableFilterChanged}" />
+	            <f:selectItem itemLabel="All Professions" itemValue="-1" />
+	            <f:selectItems value="#{selectionsBean.professionSelections}" />
+        	</p:selectOneMenu>
+		</div>
+
+		<div class="ui-g-12">
+			<div class="title">Time Range</div>
+			<div class="ui-g-6">
+				<p:outputLabel for="fromDateRange" value="From Date: " />
+				<p:calendar id="fromDateRange" widgetVar="fromDateCalWidget"
+					value="#{orderBean.tableFilter.fromDate}" 
+					pattern="dd/MM/yyyy" >
+					<p:ajax event="dateSelect"
+						listener="#{orderBean.onTableFilterChanged()}"
+						update="mainForm:orders" />
+				</p:calendar>
+				<p:commandButton value="Clear" icon="ui-icon-close" onclick="fromDateCalWidget.setDate(null)" 
+					actionListener="#{orderBean.clearDateRangeFilter(true)}" update="mainForm:fromDateRange"/>
+			</div>
+			<div class="ui-g-6">
+				<p:outputLabel for="toDateRange" value="To Date: " />
+				<p:calendar id="toDateRange" widgetVar="toDateCalWidget"
+					value="#{orderBean.tableFilter.toDate}" 
+					pattern="dd/MM/yyyy">
+					<p:ajax event="dateSelect"
+						listener="#{orderBean.onTableFilterChanged()}"
+						update="mainForm:orders" />
+				</p:calendar>
+				<p:commandButton value="Clear" icon="ui-icon-close" onclick="toDateCalWidget.setDate(null)"
+					actionListener="#{orderBean.clearDateRangeFilter(false)}" update="mainForm:toDateRange" />
+			</div>
+		</div>
+
+		<div class="ui-g-12">
+			<p:dataTable id="orders" var="order" value="#{orders}"
+				resizableColumns="true" selectionMode="single"
+				selection="#{orderBean.selectedOrder}" rowKey="#{order._id}">
+				<f:facet name="header">
+					<h:commandLink value="xls">
+						<p:dataExporter type="xls" target="orders" fileName="orders" />
+					</h:commandLink>
+
+					<h:commandLink value="pdf">
+						<p:dataExporter type="pdf" target="orders" fileName="orders" />
+					</h:commandLink>
+
+					<h:commandLink value="csv">
+						<p:dataExporter type="csv" target="orders" fileName="orders" />
+					</h:commandLink>
+
+					<h:commandLink value="xml">
+						<p:dataExporter type="xml" target="orders" fileName="orders" />
+					</h:commandLink>
+
+					<h:outputText value="Orders" />
+
+					<p:commandButton id="toggler" type="button" value="Columns"
+						styleClass="float-right" icon="ui-icon-calculator" />
+
+					<p:commandButton value="Refresh" icon="ui-icon-refresh"
+						update="@form" actionListener="#{orderBean.refreshOrders()}"
+						styleClass="float-right" />
+
+					<p:commandButton value="New" icon="ui-icon-plus" update="@form"
+						actionListener="#{orderBean.createNewOrder()}"
+						styleClass="float-right">
+						<p:ajax event="dialogReturn"
+							listener="#{orderBean.onProfessionForNewOrderChosen}"
+							update="@form" />
+					</p:commandButton>
+
+
+					<p:columnToggler datasource="orders" trigger="toggler" />
+				</f:facet>
+
+				<p:ajax event="rowSelect" listener="#{orderBean.onOrderSelected}"
+					update="mainForm" onstart="showLoader()" oncomplete="hideLoader()" />
+
+
+				<p:column width="230" headerText="Id" sortBy="#{order._id}">
+					<h:outputText value="#{order._id}" />
+				</p:column>
+
+				<p:column width="230"
+					rendered="#{orderBean.tableFilter.tableType eq 'GENERAL'}"
+					headerText="User" sortBy="#{order.userId}">
+					<h:outputText value="#{order.userId.toHexString()}" />
+				</p:column>
+
+				<p:column width="130" headerText="Profession"
+					sortBy="#{order.professionId}">
+					<h:outputText
+						value="#{professionBean.getNameForProfession(order.professionId)}" />
+				</p:column>
+
+				<p:column width="80"
+					rendered="#{orderBean.tableFilter.tableType eq 'GENERAL'}"
+					headerText="Tradesmen" sortBy="#{fn:length(order.tradesmen)}">
+					<h:outputText value="#{fn:length(order.tradesmen)}" />
+				</p:column>
+
+				<p:column headerText="Location"
+					rendered="#{orderBean.tableFilter.tableType ne 'COMPLETED'}"
+					sortBy="#{order.location.googleAddress}">
+					<h:outputText value="#{order.location.googleAddress}" />
+				</p:column>
+
+				<p:column width="230" headerText="Map Area Id"
+					rendered="#{orderBean.tableFilter.tableType eq 'COMPLETED'}"
+					sortBy="#{order.location.mapAreaId}">
+					<h:outputText value="#{order.location.mapAreaId}" />
+				</p:column>
+
+				<p:column rendered="#{param['extended']}" headerText="Order Type"
+					sortBy="#{order.orderType}">
+					<h:outputText value="#{order.orderType}" />
+				</p:column>
+
+				<p:column
+					rendered="#{param['extended'] and orderBean.tableFilter.tableType eq 'GENERAL'}"
+					headerText="UserType" sortBy="#{order.userType}">
+					<h:outputText value="#{order.userType}" />
+				</p:column>
+
+				<p:column
+					rendered="#{param['extended'] and orderBean.tableFilter.tableType eq 'GENERAL'}"
+					headerText="Job Reasons">
+					<h:outputText value="#{fn:length(order.jobReasons)}" />
+				</p:column>
+
+				<p:column
+					rendered="#{param['extended'] and orderBean.tableFilter.tableType eq 'GENERAL'}"
+					headerText="Comment" sortBy="#{order.comment}">
+					<h:outputText value="#{order.comment}" />
+				</p:column>
+
+				<p:column headerText="Charged"
+					rendered="#{orderBean.tableFilter.tableType eq 'COMPLETED'}"
+					sortBy="#{order.amountCharged}">
+					<h:outputText value="#{order.amountCharged}">
+						<f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Commission"
+					rendered="#{orderBean.tableFilter.tableType eq 'COMPLETED'}"
+					sortBy="#{order.commissionPercentage}">
+					<h:outputText value="#{order.commissionPercentage}">
+						<f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+					</h:outputText>%
+			</p:column>
+
+				<p:column headerText="Earnings"
+					rendered="#{orderBean.tableFilter.tableType eq 'COMPLETED'}">
+					<h:outputText value="#{order.calculateEarnings()}">
+						<f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
+					</h:outputText>
+				</p:column>
+
+				<p:column width="150" headerText="Created At"
+					sortBy="#{order.createdAt}">
+					<h:outputText value="#{order.createdAt}">
+						<f:convertDateTime type="date" pattern="HH:mm dd-MM-yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column rendered="#{orderBean.tableFilter.tableType eq 'ONGOING'}"
+					style="width:32px;text-align: center">
+					<p:commandButton icon="ui-icon-check"
+						actionListener="#{orderBean.completeOrder(order)}">
+						<p:ajax event="dialogReturn"
+							listener="#{orderBean.onCompleteOrderDialogClosed}"
+							update="@form" />
+					</p:commandButton>
+				</p:column>
+			</p:dataTable>
+		</div>
+	</div>
+</ui:composition>
+</html>

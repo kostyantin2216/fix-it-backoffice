@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core" >
+<ui:composition>
+
+	<div class="padding-9">
+		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'}" action="#{orderBean.saveOrUpdateOrder()}" update="@form" />
+		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'} and close" action="#{orderBean.saveOrUpdateAndUnselectedOrder()}" update="@form" />
+		<p:commandButton value="Delete" rendered="#{not orderView.newOrder}" action="#{orderBean.deleteSelectedOrder()}" update="@form" />
+		<p:commandButton value="Close" action="#{orderBean.unselectOrder()}" update="@form" />
+	</div>
+	
+	<h3 class="p-left-8">
+		<ui:fragment rendered="#{orderView.newOrder}">
+			New order
+		</ui:fragment>
+		<ui:fragment rendered="#{not orderView.newOrder}">
+			Order(#{orderView.id}) 
+		</ui:fragment>
+		for #{professionBean.getNameForProfession(orderView.professionId)}
+	</h3>
+	
+	<div class="ui-g">
+		
+		<div class="ui-g-12">
+			<p:dataTable id="tradesmen" var="tradesman" widgetVar="tradesmenTable"
+				 		 value="#{orderView.tradesmen}" resizableColumns="true" emptyMessage="No tradesmen have been selected for this order" >
+				<f:facet name="header">
+					<h:outputText value="Tradesmen" />
+		            				 
+		          	<p:commandButton value="Add" icon="ui-icon-plus" actionListener="#{orderBean.chooseTradesman}" styleClass="float-right">
+		          		<p:ajax event="dialogReturn" listener="#{orderBean.onTradesmanChosen}" update="@form" />
+		          	</p:commandButton> 
+				</f:facet>
+		
+				<p:column width="230" headerText="Id" sortBy="#{tradesman._id}" >
+					<h:outputText value="#{tradesman._id.toHexString()}" />
+				</p:column>
+		 
+				<p:column headerText="Contact Name" sortBy="#{tradesman.contactName}" >
+					<h:outputText value="#{tradesman.contactName}" />
+				</p:column>
+		
+				<p:column headerText="Company Name" sortBy="#{tradesman.companyName}">
+					<h:outputText value="#{tradesman.companyName}" />
+				</p:column>
+		
+				<p:column width="150" headerText="Telephone" sortBy="#{tradesman.telephone}">
+					<h:outputText value="#{tradesman.telephone}" />
+				</p:column>
+		
+				<p:column width="65" headerText="Active" sortBy="#{tradesman.active}" >
+					<h:outputText value="#{tradesman.active ? 'Yes' : 'No'}" />
+				</p:column>
+				
+				<p:column style="width:32px;text-align: center">
+                    <p:commandButton icon="ui-icon-close" actionListener="#{orderView.removeTradesman(tradesman)}" update="@form"/>
+                </p:column>
+			</p:dataTable>
+		</div>
+		
+		<div class="ui-g-6">
+			<p:outputLabel value="User" for="user" styleClass="block" />
+			<p:autoComplete id="user" value="#{orderView.user}" styleClass="input-user" completeMethod="#{orderBean.completeUser}"
+                        	var="user" itemLabel="#{user.telephone}#{not empty user ? ', ' : ''}#{user.name}" itemValue="#{user}" converter="#{userUiConverter}" forceSelection="true">
+                <p:ajax event="itemSelect" listener="#{orderBean.onUserSelected}" update="@form" />
+                
+	            <p:column>
+	                <h:outputText value="#{user.name}" />
+	            </p:column>
+	 
+	            <p:column>
+	                <h:outputText value="#{user.type}" />
+	            </p:column>
+	            
+	            <p:column>
+	                <h:outputText value="#{user.telephone}" />
+	            </p:column>
+	        </p:autoComplete>	     
+	        <p:commandButton styleClass="btn-new-user" value="Create" actionListener="#{orderBean.createUser}">
+	        	<p:ajax event="dialogReturn" listener="#{orderBean.onUserCreated}" update="@form" />
+	        </p:commandButton>     
+		</div>
+		
+		<div class="ui-g-6">
+			<p:outputLabel value="Address" for="address" styleClass="block" />
+        	<p:autoComplete id="address" value="#{orderView.location.googleAddress}" styleClass="input-address" 
+        					completeMethod="#{orderBean.completeAddress}" forceSelection="true" >
+        		<p:ajax event="itemSelect" listener="#{orderBean.onAddressSelected}" update="@form" />
+        	</p:autoComplete>
+		</div>
+	
+		<div class="ui-g-6">
+			<p:outputLabel value="User Type" for="userType" styleClass="block"/>
+		    <p:selectOneMenu id="userType" value="#{orderView.userType}" disabled="true">
+		        <f:selectItem itemLabel="Pick User" itemValue="" />
+		        <f:selectItems value="#{selectionsBean.userTypes}" />
+		    </p:selectOneMenu>
+		</div>
+
+		<div class="ui-g-6">
+			<p:outputLabel value="Map Area Id" for="mapAreaId" styleClass="block"/>
+			<p:inputText id="mapAreaId" value="#{orderView.location.mapAreaId}" disabled="true" styleClass="full-width"/>
+		</div>
+		
+		<div class="ui-g-3" >
+			<p:outputLabel value="User Comment" for="comment" styleClass="block" />
+    		<p:inputTextarea id="comment" value="#{orderView.comment}" rows="6" />
+		</div>
+		
+		<div class="ui-g-9">		
+			<div class="ui-g-4">
+				<p:outputLabel value="Amount Charged" for="amountCharged" styleClass="block"/>
+				<p:inputNumber id="amountCharged" value="#{orderView.amountCharged}" emptyValue="zero">
+					<p:ajax update="mainForm:earnings" />
+				</p:inputNumber>
+			</div>
+			
+			<div class="ui-g-4">
+				<p:outputLabel value="Commision Percentage" for="commisionPercentage" styleClass="block"/>
+				<p:inputNumber id="commisionPercentage" value="#{orderView.commissionPercentage}" symbol="%" 
+                               symbolPosition="s" emptyValue="zero" >
+					<p:ajax update="mainForm:earnings" />
+				</p:inputNumber>
+			</div>
+			
+			<div class="ui-g-4">
+				<p:outputLabel value="Amount Earned" for="earnings" styleClass="block"/>
+				<p:inputText id="earnings" disabled="true" value="#{orderView.calculateEarnings()}"/>  
+			</div>
+			
+			<div class="ui-g-4">
+				<p:outputLabel value="Order Type" for="orderType" styleClass="block"/>
+		        <p:selectOneMenu id="orderType" value="#{orderView.orderType}" disabled="true">
+		            <f:selectItems value="#{selectionsBean.orderTypes}" />
+		        </p:selectOneMenu>
+			</div>
+			
+			<div class="ui-g-4" >
+				<p:outputLabel value="Created At" for="createdAt" styleClass="block" />
+				<p:calendar id="createdAt" value="#{orderView.createdAt}" pattern="dd/MM/yyyy HH:mm"  />
+			</div>
+		</div>
+		
+		<div class="ui-g-12" >
+			<p:outputLabel value="Job Reasons" for="jobReasons" />
+			<p:selectManyCheckbox id="jobReasons" value="#{orderView.jobReasons}" layout="grid" columns="3">
+		        <f:selectItems value="#{selectionsBean.getJobReasonsForProfession(orderView.professionId)}" />
+		    </p:selectManyCheckbox>
+		</div>
+		
+	</div>
+	
+	<div class="padding-9">
+		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'}" action="#{orderBean.saveOrUpdateOrder()}" update="@form" />
+		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'} and close" action="#{orderBean.saveOrUpdateAndUnselectedOrder()}" update="@form" />
+		<p:commandButton value="Delete" rendered="#{not orderView.newOrder}" action="#{orderBean.deleteSelectedOrder()}" update="@form" />
+		<p:commandButton value="Close" action="#{orderBean.unselectOrder()}" update="@form" />
+	</div>
+	
+</ui:composition>
+</html>

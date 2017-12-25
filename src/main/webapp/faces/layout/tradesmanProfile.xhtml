@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core" >
+<ui:composition>
+
+	<div class="padding-9">
+		<p:commandButton value="#{tradesmanView.newTradesman ? 'Save' : 'Update'}" action="#{tradesmenBean.saveOrUpdateTradesman()}" update="@form" />
+		<p:commandButton value="#{tradesmanView.newTradesman ? 'Save' : 'Update'} and close" action="#{tradesmenBean.saveOrUpdateAndUnselectedTradesman()}" update="@form" />
+		<p:commandButton value="Delete" rendered="#{not tradesmanView.newTradesman}" action="#{tradesmenBean.deleteSelectedTradesman()}" update="@form" />
+	</div>
+	
+	<div class="ui-g">
+		<div class="ui-g-4" >	
+			<h:outputLabel value="Company Name" for="companyName" styleClass="block" />
+			<p:inputText id="companyName" value="#{tradesmanView.companyName}" />
+		</div>
+	
+		<div class="ui-g-4" >	
+			<h:outputLabel value="Contact Name" for="contactName" styleClass="block" />
+			<p:inputText id="contactName" value="#{tradesmanView.contactName}" />
+		</div>
+	
+		<div class="ui-g-4" >	
+			<h:outputLabel value="Priority" for="priority" styleClass="block" />
+			<p:inputText id="priority" value="#{tradesmanView.priority}" />
+		</div>
+		
+		<div class="ui-g-4" >	
+			<h:outputLabel value="Telephone" for="telephone" styleClass="block" />
+			<p:inputText id="telephone" value="#{tradesmanView.telephone}" />
+		</div>
+		
+		<div class="ui-g-4" >
+			<h:outputLabel value="Email" for="email" styleClass="block" />
+			<p:inputText id="email" value="#{tradesmanView.email}"  />
+		</div>
+		
+		<div class="ui-g-4" style="padding-top: 33px;" >
+			<p:selectBooleanCheckbox id="active" value="#{tradesmanView.active}" styleClass="p-right-10" />
+			<h:outputLabel value="Active" for="active" />
+		</div>
+		
+		<div class="ui-g-12" >
+			<h:outputLabel value="Professions" for="professions" />
+			<p:selectManyCheckbox id="professions" value="#{tradesmanView.professions}" layout="grid" columns="3">
+		        <f:selectItems value="#{selectionsBean.professionSelections}" />
+		    </p:selectManyCheckbox>
+		</div>
+	    
+	    <div class="ui-g-12">
+	    	<label>Work Schedule</label>
+	    	
+	    	<p:tabView id="workingDays" var="workingDay"  value="#{tradesmanView.workingDays.entrySet().toArray()}">
+	        		<p:tab id="workingDay#{workingDay.key}" title="#{msgs['day.' += workingDay.key]}">
+	        			<ui:fragment rendered="#{empty workingDay.value}">
+	        				Day Off
+	        			</ui:fragment>
+	        			
+	        			<ui:repeat var="workingHours" value="#{workingDay.value.toArray()}" varStatus="hourStatus" >
+			    			<ui:fragment rendered="#{not empty workingHours}">
+				    			<div class="m-top-10">
+				    				<h:outputLabel value="Open" class="m-right-10" />
+			        				<p:calendar id="day#{workingDay.key}_hours#{hourStatus.index}_open" 
+			        							value="#{workingHours.open}" pattern="HH:mm" timeOnly="true" />
+			        		
+			        				<h:outputLabel value="Closed" class="m-right-10 m-left-20" />
+			        				<p:calendar id="day#{workingDay.key}_hours#{hourStatus.index}_closed" 
+			        							value="#{workingHours.close}" pattern="HH:mm" timeOnly="true"  />
+			           			
+			           				<p:commandButton value="Remove" id="btnRemoveHours#{workingDay.key}#{hourStatus.index}" 
+			           								 class="m-left-20" update="mainForm:mainTabs:workingDays" 
+			        					 			 action="#{tradesmanView.removeWorkingHours(workingDay.key, hourStatus.index)}" />
+			           			</div>
+		        			</ui:fragment>
+		        		</ui:repeat>
+		        		
+		        		<div class="m-top-20">
+			        		<p:commandButton value="Add" id="btnAddHours#{workingDay.key}" update="mainForm:mainTabs:workingDays" 
+			        					 	 action="#{tradesmanView.addWorkingHours(workingDay.key)}" />
+			        		<p:commandButton value="Clear" id="btnClearHours#{workingDay.key}" update="mainForm:mainTabs:workingDays" 
+			        					 	 rendered="#{workingDay.value.size() gt 0}"
+			        					 	 action="#{tradesmanView.clearWorkingHours(workingDay.key)}" />
+	        			</div>
+	        		</p:tab>
+	    	</p:tabView>	    	
+	    </div>
+		
+		<div class="ui-g-12">
+			<label class="block">Feature Image URL</label>
+			<p:graphicImage url="#{tradesmanView.featureImageUrl}" class="block full-width-max"/>
+			<p:inputText id="featureImageUrl" value="#{tradesmanView.featureImageUrl}" class="full-width"/>
+		</div>
+	    
+	    <div class="ui-g-12">
+			<label class="block">Logo URL</label>
+			<p:graphicImage url="#{tradesmanView.logoUrl}" class="block full-width-max" />
+			<p:inputText id="logoUrl" value="#{tradesmanView.logoUrl}" class="full-width" />
+		</div>
+				
+		<div class="ui-g-12" >
+			<label>Work Areas</label>
+			<p:gmap id="gmap" widgetVar="gmap" center="#{dataUtils.toString(tradesmanView.workingAreasModel.center)}" zoom="#{tradesmanView.workingAreasModel.zoomLevel}" type="terrain" style="width:100%;height:500px" model="#{tradesmanView.workingAreasModel.model}">
+				<p:ajax event="overlaySelect" listener="#{tradesmanView.workingAreasModel.onPolygonSelect}" />
+				<p:ajax event="stateChange" listener="#{tradesmanView.workingAreasModel.onStateChange}"/>
+			</p:gmap>
+	    </div>
+	</div>
+	
+	<div class="padding-9">
+		<p:commandButton value="#{tradesmanView.newTradesman ? 'Save' : 'Update'}" action="#{tradesmenBean.saveOrUpdateTradesman()}" update="@form" />
+		<p:commandButton value="#{tradesmanView.newTradesman ? 'Save' : 'Update'} and close" action="#{tradesmenBean.saveOrUpdateAndUnselectedTradesman()}" update="@form" />
+		<p:commandButton value="Delete" rendered="#{not tradesmanView.newTradesman}" action="#{tradesmenBean.deleteSelectedTradesman()}" update="@form" />
+	</div>
+</ui:composition>
+</html>

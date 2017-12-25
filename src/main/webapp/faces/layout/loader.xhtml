@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+	<ui:composition>
+		<div id="loader" class="loader-wrap">
+  			<div class="loader">
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  				<span class="loader-item"></span>
+  			</div>
+		</div>
+	
+		<script>
+			$(document).ready(function() {
+		    	hideLoader();
+			});
+
+			function showLoader() {
+				$('#loader').css('display', 'block');
+				window.scrollTo(0, 0);
+				console.log('showing loader');
+			}
+			function hideLoader() {
+				$('#loader').css('display', 'none');
+				console.log('hiding loader');
+			}
+		</script>
+	</ui:composition>
+</html>

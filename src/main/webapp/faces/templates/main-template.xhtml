@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+       
+
+        <title>Fixxit Managment</title>
+        
+        <h:outputScript library="default" name="js/common.js" />
+        <ui:insert name="additionalScripts" />
+        
+    </h:head>
+    <h:body>
+	    <h:outputStylesheet library="default" name="css/bo-style.css"/>
+	    
+        <ui:include src="/faces/layout/navbar.xhtml" />
+        
+        <div class="main-content">
+        	<ui:insert name="content" />
+        </div>
+        
+        <ui:include src="/faces/layout/loader.xhtml" />
+        
+    </h:body>
+</html>

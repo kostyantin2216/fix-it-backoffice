@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+<ui:composition>
+
+	<p:dataTable id="tradesmen" var="tradesman" widgetVar="tradesmenTable" styleClass="tradesmenTable"
+				 value="#{tradesmenBean.tradesmen}" filteredValue="#{tradesmenBean.filteredTradesmen}" resizableColumns="true" 
+				 selectionMode="single" selection="#{tradesmenBean.selectedTradesman}" rowKey="#{tradesman._id}">
+		
+		<f:facet name="header">
+			<h:commandLink value="xls">
+				<p:dataExporter type="xls" target="tradesmen" fileName="tradesmen" />
+			</h:commandLink>
+
+			<h:commandLink value="pdf">
+				<p:dataExporter type="pdf" target="tradesmen" fileName="tradesmen" />
+			</h:commandLink>
+
+			<h:commandLink value="csv">
+				<p:dataExporter type="csv" target="tradesmen" fileName="tradesmen" />
+			</h:commandLink>
+
+			<h:commandLink value="xml">
+				<p:dataExporter type="xml" target="tradesmen" fileName="tradesmen" />
+			</h:commandLink>
+
+			<h:outputText value="Tradesmen" />
+
+			<p:commandButton id="toggler" type="button" value="Columns"
+				styleClass="float-right" icon="ui-icon-calculator" />
+
+			<p:commandButton value="Refresh" icon="ui-icon-refresh" update="@form"  
+            				 actionListener="#{tradesmenBean.refreshTradesmen()}"
+            				 oncomplete="PF('tradesmenTable').clearFilters()"
+            				 styleClass="float-right"/> 
+            				 
+            <p:commandButton value="New" icon="ui-icon-plus" update="@form"  
+            				 actionListener="#{tradesmenBean.createTradesman()}"
+            				 oncomplete="PF('tradesmenTable').clearFilters()"
+            				 styleClass="float-right"/> 
+				
+			<p:columnToggler datasource="tradesmen" trigger="toggler" />
+			
+			<p:outputPanel styleClass="m-top-10">
+		    	<h:outputText value="Search all fields:" />
+		        <p:inputText id="globalFilter" onkeyup="PF('tradesmenTable').filter()" placeholder="Enter keyword"/>
+		    </p:outputPanel>
+		</f:facet>
+
+		<p:ajax event="rowSelect"
+			listener="#{tradesmenBean.onTradesmanSelected}"
+			update="mainForm"
+			onstart="showLoader()"
+			oncomplete="hideLoader()" />
+
+		<p:column width="230" headerText="Id" sortBy="#{tradesman._id}" filterBy="#{tradesman._id.toHexString()}" 
+				  filterMatchMode="contains">
+			<h:outputText value="#{tradesman._id.toHexString()}" />
+		</p:column>
+
+		<p:column rendered="#{param['extended']}" headerText="Lead Id" sortBy="#{tradesman.leadId}"
+				  filterBy="#{tradesman.leadId}">
+			<h:outputText value="#{tradesman.leadId}" />
+		</p:column>
+
+		<p:column headerText="Professions" filterBy="#{tradesmenBean.getProfessionNames(tradesman)}"
+				  exportFunction="#{tradesmenBean.exportProfessionsColumn}" filterMatchMode="contains">
+			<h:outputText value="#{tradesmenBean.getProfessionNames(tradesman)}" />
+		</p:column>
+
+		<p:column rendered="#{param['extended']}" headerText="Areas" >
+			<h:outputText value="#{fn:length(tradesman.workingAreas)}" />
+		</p:column>
+ 
+		<p:column headerText="Contact Name" sortBy="#{tradesman.contactName}" 
+				  filterBy="#{tradesman.contactName}" filterMatchMode="contains">
+			<h:outputText value="#{tradesman.contactName}" />
+		</p:column>
+
+		<p:column headerText="Company Name" sortBy="#{tradesman.companyName}"
+				  filterBy="#{tradesman.companyName}" filterMatchMode="contains">
+			<h:outputText value="#{tradesman.companyName}" />
+		</p:column>
+
+		<p:column headerText="Email" sortBy="#{tradesman.email}"
+				  filterBy="#{tradesman.email}" filterMatchMode="contains">
+			<h:outputText value="#{tradesman.email}" />
+		</p:column>
+
+		<p:column headerText="Telephone" sortBy="#{tradesman.telephone}"
+				  filterBy="#{tradesman.telephone}" filterMatchMode="contains">
+			<h:outputText value="#{tradesman.telephone}" />
+		</p:column>
+
+		<p:column width="70" headerText="Priority" sortBy="#{tradesman.priority}">
+			<h:outputText value="#{tradesman.priority}" />
+		</p:column>
+
+		<p:column width="80" headerText="Active" sortBy="#{tradesman.active}" filterBy="#{tradesman.active}" 
+				  filterMatchMode="equals">
+			<f:facet name="filter">
+                <p:selectOneButton onchange="PF('tradesmenTable').filter()">
+                    <f:converter converterId="javax.faces.Boolean" />
+                    <f:selectItem itemLabel="All" itemValue="" />
+                    <f:selectItem itemLabel="Y" itemValue="true" />
+                    <f:selectItem itemLabel="N" itemValue="false" />
+            	</p:selectOneButton>
+            </f:facet>
+			<h:outputText value="#{tradesman.active ? 'Yes' : 'No'}" />
+		</p:column>
+
+		<p:column rendered="#{param['extended']}" headerText="Logo URL">
+			<h:outputText value="#{tradesman.logoUrl}" />
+		</p:column>
+
+		<p:column rendered="#{param['extended']}"
+			headerText="Feature Image URL">
+			<h:outputText value="#{tradesman.featureImageUrl}" />
+		</p:column>
+	</p:dataTable>
+
+</ui:composition>
+</html>

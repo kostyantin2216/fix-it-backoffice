@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+	<title>Complete Order</title>
+</h:head>
+
+<h:body>
+	<h:outputStylesheet library="default" name="css/bo-style.css" />
+	<h:form id="mainForm">
+		<div class="ui-g-12">
+			<p:outputLabel value="Amount Charged" for="amountCharged"
+				styleClass="block" />
+			<p:inputNumber id="amountCharged" value="#{orderBean.selectedOrder.amountCharged}"
+				emptyValue="zero">
+				<p:ajax update="mainForm:earnings" />
+			</p:inputNumber>
+		</div>
+
+		<div class="ui-g-12">
+			<p:outputLabel value="Commision Percentage" for="commisionPercentage"
+				styleClass="block" />
+			<p:inputNumber id="commisionPercentage"
+				value="#{orderBean.selectedOrder.commissionPercentage}" symbol="%"
+				symbolPosition="s" emptyValue="zero">
+				<p:ajax update="mainForm:earnings" />
+			</p:inputNumber>
+		</div>
+
+		<div class="ui-g-12">
+			<p:outputLabel value="Amount Earned" for="earnings"
+				styleClass="block" />
+			<p:inputText id="earnings" disabled="true"
+				value="#{orderBean.selectedOrder.calculateEarnings()}" />
+		</div>
+		
+		<div class="ui-g-12">
+			<p:commandButton value="Complete"
+						icon="ui-icon-check" styleClass="center"
+						actionListener="#{orderBean.completeOrderAndCloseDialog}" />
+		</div>
+	</h:form>
+</h:body>
+
+</html>

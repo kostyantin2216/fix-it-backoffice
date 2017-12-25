@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<ui:composition>
+
+	<p:dataTable id="storedProperties" var="storedProperty" editable="true"
+		value="#{storedPropertyBean.storedProperties}" resizableColumns="true" >
+		<f:facet name="header">
+			<h:commandLink value="xls">
+				<p:dataExporter type="xls" target="storedProperty" fileName="storedProperty" />
+			</h:commandLink>
+
+			<h:commandLink value="pdf">
+				<p:dataExporter type="pdf" target="storedProperty" fileName="storedProperty" />
+			</h:commandLink>
+
+			<h:commandLink value="csv">
+				<p:dataExporter type="csv" target="storedProperty" fileName="storedProperty" />
+			</h:commandLink>
+
+			<h:commandLink value="xml">
+				<p:dataExporter type="xml" target="storedProperty" fileName="storedProperty" />
+			</h:commandLink>
+
+			<h:outputText value="Stored Poperties" />
+
+		</f:facet>
+		
+		<p:ajax event="rowEdit" listener="#{storedPropertyBean.onStoredPropertyEdit}" update="mainForm:msgs" />
+ 
+       	<p:column headerText="Group" sortBy="#{storedProperty.group}">
+      		<p:cellEditor>
+            	<f:facet name="output"><h:outputText value="#{storedProperty.group}" /></f:facet>
+                <f:facet name="input"><p:inputText id="group" value="#{storedProperty.group}" style="width:96%"/></f:facet>
+            </p:cellEditor>
+		</p:column>
+
+		<p:column headerText="Key" sortBy="#{storedProperty.key}">
+      		<p:cellEditor>
+            	<f:facet name="output"><h:outputText value="#{storedProperty.key}" /></f:facet>
+                <f:facet name="input"><p:inputText id="key" value="#{storedProperty.key}" style="width:96%"/></f:facet>
+            </p:cellEditor>
+		</p:column>
+		
+		<p:column headerText="Value">
+      		<p:cellEditor>
+            	<f:facet name="output"><h:outputText value="#{storedProperty.value}" /></f:facet>
+                <f:facet name="input"><p:inputText id="value" value="#{storedProperty.value}" style="width:96%"/></f:facet>
+            </p:cellEditor>
+		</p:column>
+		
+		<p:column headerText="Updated At">
+			<h:outputText value="#{storedProperty.updatedAt}" >
+				<f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+			</h:outputText>
+		</p:column>
+		
+		<p:column style="width:32px">
+           <p:rowEditor />
+       </p:column>
+	</p:dataTable>
+
+</ui:composition>
+</html>
