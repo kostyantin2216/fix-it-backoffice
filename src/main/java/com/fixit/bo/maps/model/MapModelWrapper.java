@@ -3,14 +3,11 @@
  */
 package com.fixit.bo.maps.model;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.primefaces.event.map.StateChangeEvent;
 import org.primefaces.model.map.LatLng;
 import org.primefaces.model.map.MapModel;
-
-import com.fixit.core.data.mongo.MapArea;
 
 /**
  * @author 		Kostyantin
@@ -18,12 +15,10 @@ import com.fixit.core.data.mongo.MapArea;
  */
 public interface MapModelWrapper extends PolygonManipulator {
 
-	String getMapElementId();
 	LatLng getCenter();
 	int getZoomLevel();
 	
 	MapModel getModel();
-	List<MapArea> getMapAreas();
 	
 	Optional<MapModelWrapper> getParentWrapper();
 	

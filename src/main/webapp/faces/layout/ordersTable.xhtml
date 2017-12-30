@@ -6,13 +6,14 @@
 	xmlns:h="http://xmlns.jcp.org/jsf/html"
 	xmlns:f="http://xmlns.jcp.org/jsf/core"
 	xmlns:p="http://primefaces.org/ui"
-	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+   	xmlns:fixxit = "http://java.sun.com/jsf/composite/components">
 <ui:composition>
 
 	<div class="ui-g">
 
 		<div class="ui-g-6">
-			<div class="title">Status</div>
+			<div class="title">Status Filter</div>
 			<p:selectOneButton id="orderTableType"
 				value="#{orderBean.tableFilter.tableType}">
 				<p:ajax update="mainForm:orders" event="change"
@@ -21,16 +22,38 @@
 			</p:selectOneButton>
 		</div>
 		<div class="ui-g-6">
-			<div class="title">Profession</div>
+			<div class="title">Profession Filter</div>
 			<p:selectOneMenu id="professionInput" value="#{orderBean.tableFilter.professionId}">
 				<p:ajax event="change" update="mainForm:orders" listener="#{orderBean.onTableFilterChanged}" />
 	            <f:selectItem itemLabel="All Professions" itemValue="-1" />
 	            <f:selectItems value="#{selectionsBean.professionSelections}" />
         	</p:selectOneMenu>
 		</div>
+		
+		<div class="ui-g-12">
+			<div class="title">User Filter</div>
+			<div class="ui-g-6">
+				<div class="ui-g-9 no-padding">
+					<fixxit:userAutocomplete user="#{orderBean.tableFilter.user}" onUserSelected="#{orderBean.onTableFilterChanged}" ajaxUpdate="@form" />
+				</div>
+				<div class="ui-g-3 no-padding">
+					<br />
+					<p:commandButton value="Clear" icon="ui-icon-close" actionListener="#{orderBean.clearUserFilter()}" 
+									 update="@form"/>
+				</div>
+			</div>
+			<div class="ui-g-6">
+				<p:outputLabel value="User Type" for="userTypeInput" styleClass="block"/>
+			    <p:selectOneMenu id="userTypeInput" value="#{orderBean.tableFilter.userType}">
+			    	<p:ajax event="change" update="mainForm:orders" listener="#{orderBean.onTableFilterChanged}" />
+			        <f:selectItem itemLabel="All User Types" itemValue="" />
+			        <f:selectItems value="#{selectionsBean.userTypes}" />
+			    </p:selectOneMenu>
+			</div>
+		</div>
 
 		<div class="ui-g-12">
-			<div class="title">Time Range</div>
+			<div class="title">Time Range Filter</div>
 			<div class="ui-g-6">
 				<p:outputLabel for="fromDateRange" value="From Date: " />
 				<p:calendar id="fromDateRange" widgetVar="fromDateCalWidget"

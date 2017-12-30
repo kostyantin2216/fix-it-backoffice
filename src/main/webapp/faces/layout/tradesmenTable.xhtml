@@ -42,7 +42,8 @@
             				 
             <p:commandButton value="New" icon="ui-icon-plus" update="@form"  
             				 actionListener="#{tradesmenBean.createTradesman()}"
-            				 oncomplete="PF('tradesmenTable').clearFilters()"
+            				 onstart="showLoader();"
+            				 oncomplete="PF('tradesmenTable').clearFilters();hideLoader();"
             				 styleClass="float-right"/> 
 				
 			<p:columnToggler datasource="tradesmen" trigger="toggler" />

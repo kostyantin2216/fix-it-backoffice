@@ -4,20 +4,19 @@
 package com.fixit.bo.views;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.bson.types.ObjectId;
 import org.springframework.util.StringUtils;
 
-import com.fixit.bo.maps.model.BaseMapModelWrapper;
-import com.fixit.bo.maps.model.MapModelWrapper;
-import com.fixit.bo.maps.model.SelectableMapModelWrapper;
+import com.fixit.bo.maps.model.ParentChildMapModelWrapper;
 import com.fixit.core.data.WorkingDay;
 import com.fixit.core.data.mongo.Tradesman;
 import com.fixit.core.utils.Formatter;
@@ -28,7 +27,7 @@ import com.fixit.core.utils.Formatter;
  */
 public class TradesmanView implements DataModelView<Tradesman> {
 	
-	public static TradesmanView forTradesman(Tradesman tradesman, BaseMapModelWrapper baseWrapper) {
+	public static TradesmanView forTradesman(Tradesman tradesman, ParentChildMapModelWrapper baseWrapper) {
 		TradesmanView tv = new TradesmanView();
 		tv.id = tradesman.get_id().toHexString();
 		tv.leadId = tradesman.getLeadId();
@@ -39,23 +38,17 @@ public class TradesmanView implements DataModelView<Tradesman> {
 		tv.telephone = tradesman.getTelephone();
 		tv.logoUrl = tradesman.getLogoUrl();
 		tv.featureImageUrl = tradesman.getFeatureImageUrl();
-		tv.workingAreas = new SelectableMapModelWrapper(
-				baseWrapper,
-				Arrays.asList(tradesman.getWorkingAreas())
-		);
+		tv.workingAreas = baseWrapper;
 		tv.workingDays = transform(tradesman.getWorkingDays());
 		tv.active = tradesman.isActive();
 		tv.priority = tradesman.getPriority();
 		return tv;
 	}
 	
-	public static TradesmanView newTradesman(BaseMapModelWrapper baseWrapper) {
+	public static TradesmanView newTradesman(ParentChildMapModelWrapper baseWrapper) {
 		TradesmanView tv = new TradesmanView();
 		tv.workingDays = transform((WorkingDay[]) null);
-		tv.workingAreas = new SelectableMapModelWrapper(
-				baseWrapper,
-				new ArrayList<>()
-		);
+		tv.workingAreas = baseWrapper;
 		return tv;
 	}
 	
@@ -99,7 +92,7 @@ public class TradesmanView implements DataModelView<Tradesman> {
 	private String telephone;
 	private String logoUrl;
 	private String featureImageUrl;
-	private SelectableMapModelWrapper workingAreas;
+	private ParentChildMapModelWrapper workingAreas;
 	private Map<Integer, List<WorkingHours>> workingDays;
 	private boolean active;
 	private int priority;
@@ -178,15 +171,12 @@ public class TradesmanView implements DataModelView<Tradesman> {
 		this.featureImageUrl = featureImageUrl;
 	}
 	
-	public MapModelWrapper getWorkingAreasModel() {
+	public ParentChildMapModelWrapper getWorkingAreasModel() {
 		return workingAreas;
 	}
 
 	public void setWorkingAreas(List<String> areaIds) {
-		MapModelWrapper baseWrapper = this.workingAreas.getParentWrapper().get();
-		this.workingAreas = new SelectableMapModelWrapper(
-				baseWrapper, areaIds
-		);
+		this.workingAreas = new ParentChildMapModelWrapper(workingAreas.getCurrentNode().getRoot(), new HashSet<>(areaIds), workingAreas.getCenter());
 	}
 
 	public Map<Integer, List<WorkingHours>> getWorkingDays() {
@@ -267,7 +257,7 @@ public class TradesmanView implements DataModelView<Tradesman> {
 		t.setPriority(priority);
 		t.setProfessions(professions);
 		t.setTelephone(telephone);
-		List<String> areaIds = workingAreas.getSelectedAreas();
+		Set<String> areaIds = workingAreas.getSelectedAreas();
 		if(areaIds != null) {
 			t.setWorkingAreas(areaIds.toArray(new String[areaIds.size()]));
 		}

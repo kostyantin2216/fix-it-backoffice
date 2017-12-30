@@ -141,6 +141,10 @@ public class OrderBean implements Serializable {
 		return mOrderView;
 	}
 	
+	public void onTableFilterChanged(SelectEvent event) {
+		onTableFilterChanged();
+	}
+	
 	public void onTableFilterChanged() {
 		mOrderDataStore.applyFilter(mTableFilter);
 	}
@@ -151,6 +155,12 @@ public class OrderBean implements Serializable {
 		} else {
 			mTableFilter.clearToDate();
 		}
+		
+		onTableFilterChanged();
+	}
+	
+	public void clearUserFilter() {
+		mTableFilter.clearUser();
 		
 		onTableFilterChanged();
 	}
@@ -209,10 +219,6 @@ public class OrderBean implements Serializable {
 	    mOrderView.addTradesman(tradesman);
 	}
 	
-	public void createUser() {		
-		FacesUtils.showDialog("dfCreateUser", 190, 400, false, true);
-	}
-	
 	public void onUserCreated(SelectEvent event) {
 		CommonUser user = (CommonUser) event.getObject();
 		mOrderView.setUser(user);
@@ -227,17 +233,6 @@ public class OrderBean implements Serializable {
 
 	public void onUserSelected(SelectEvent event) {
 		mOrderView.setUserType(mOrderView.getUser().getType());
-	}
-
-	public List<CommonUser> completeUser(String query) {
-		if(!StringUtils.isEmpty(query)) {			
-			query = query.trim();
-			if(query.length() > 2 && !query.contains(",")) {
-				return mUserFactory.findUsersWithContainingTelepone(query);
-			}
-		}
-
-		return null;
 	}
 
 	public void onAddressSelected(SelectEvent event) {

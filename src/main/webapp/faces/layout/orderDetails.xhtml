@@ -6,7 +6,8 @@
 	  xmlns:h="http://xmlns.jcp.org/jsf/html"
 	  xmlns:f="http://xmlns.jcp.org/jsf/core"
 	  xmlns:p="http://primefaces.org/ui"
-      xmlns:c="http://java.sun.com/jsp/jstl/core" >
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+   	  xmlns:fixxit = "http://java.sun.com/jsf/composite/components" >
 <ui:composition>
 
 	<div class="padding-9">
@@ -66,26 +67,7 @@
 		</div>
 		
 		<div class="ui-g-6">
-			<p:outputLabel value="User" for="user" styleClass="block" />
-			<p:autoComplete id="user" value="#{orderView.user}" styleClass="input-user" completeMethod="#{orderBean.completeUser}"
-                        	var="user" itemLabel="#{user.telephone}#{not empty user ? ', ' : ''}#{user.name}" itemValue="#{user}" converter="#{userUiConverter}" forceSelection="true">
-                <p:ajax event="itemSelect" listener="#{orderBean.onUserSelected}" update="@form" />
-                
-	            <p:column>
-	                <h:outputText value="#{user.name}" />
-	            </p:column>
-	 
-	            <p:column>
-	                <h:outputText value="#{user.type}" />
-	            </p:column>
-	            
-	            <p:column>
-	                <h:outputText value="#{user.telephone}" />
-	            </p:column>
-	        </p:autoComplete>	     
-	        <p:commandButton styleClass="btn-new-user" value="Create" actionListener="#{orderBean.createUser}">
-	        	<p:ajax event="dialogReturn" listener="#{orderBean.onUserCreated}" update="@form" />
-	        </p:commandButton>     
+			<fixxit:userAutocomplete user="#{orderView.user}" onUserSelected="#{orderBean.onUserSelected}" onUserCreated="#{orderBean.onUserCreated}" ajaxUpdate="@form" />
 		</div>
 		
 		<div class="ui-g-6">
@@ -153,6 +135,10 @@
 			<p:selectManyCheckbox id="jobReasons" value="#{orderView.jobReasons}" layout="grid" columns="3">
 		        <f:selectItems value="#{selectionsBean.getJobReasonsForProfession(orderView.professionId)}" />
 		    </p:selectManyCheckbox>
+		</div>
+		
+		<div class="ui-g-12">
+			<fixxit:dataComments rendered="#{not orderView.newOrder}" dataType="2" dataId="#{orderView.id}" />
 		</div>
 		
 	</div>

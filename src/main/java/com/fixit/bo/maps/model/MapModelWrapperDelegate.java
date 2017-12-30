@@ -3,16 +3,12 @@
  */
 package com.fixit.bo.maps.model;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.primefaces.event.map.OverlaySelectEvent;
 import org.primefaces.event.map.StateChangeEvent;
 import org.primefaces.model.map.LatLng;
 import org.primefaces.model.map.MapModel;
-import org.primefaces.model.map.Polygon;
-
-import com.fixit.core.data.mongo.MapArea;
 
 /**
  * @author 		Kostyantin
@@ -25,30 +21,10 @@ public class MapModelWrapperDelegate implements MapModelWrapper {
 	protected MapModelWrapperDelegate(MapModelWrapper parentWrapper) {
 		mParentWrapper = parentWrapper;
 	}
-
-	@Override
-	public void hide(Polygon polygon) {
-		mParentWrapper.hide(polygon);
-	}
-
-	@Override
-	public void show(Polygon polygon) {
-		mParentWrapper.show(polygon);
-	}
-
-	@Override
-	public void select(Polygon polygon) {
-		mParentWrapper.select(polygon);
-	}
-
-	@Override
-	public void unselect(Polygon polygon) {
-		mParentWrapper.unselect(polygon);
-	}
 	
 	@Override
-	public void onPolygonSelect(OverlaySelectEvent event) {
-		mParentWrapper.onPolygonSelect(event);
+	public boolean onPolygonSelect(OverlaySelectEvent event) {
+		return mParentWrapper.onPolygonSelect(event);
 	}
 	
 	@Override
@@ -70,19 +46,14 @@ public class MapModelWrapperDelegate implements MapModelWrapper {
 	public MapModel getModel() {
 		return mParentWrapper.getModel();
 	}
-	
-	@Override
-	public List<MapArea> getMapAreas() {
-		return mParentWrapper.getMapAreas();
-	}
-	
-	@Override
-	public String getMapElementId() {
-		return mParentWrapper.getMapElementId();
-	}
 
 	@Override
 	public Optional<MapModelWrapper> getParentWrapper() {
 		return Optional.of(mParentWrapper);
+	}
+	
+	@Override
+	public Options getPolygonOptions() {
+		return mParentWrapper.getPolygonOptions();
 	}
 }

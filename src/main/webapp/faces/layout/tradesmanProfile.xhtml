@@ -6,7 +6,8 @@
 	  xmlns:h="http://xmlns.jcp.org/jsf/html"
 	  xmlns:f="http://xmlns.jcp.org/jsf/core"
 	  xmlns:p="http://primefaces.org/ui"
-      xmlns:c="http://java.sun.com/jsp/jstl/core" >
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+   	  xmlns:fixxit = "http://java.sun.com/jsf/composite/components" >
 <ui:composition>
 
 	<div class="padding-9">
@@ -105,11 +106,27 @@
 				
 		<div class="ui-g-12" >
 			<label>Work Areas</label>
-			<p:gmap id="gmap" widgetVar="gmap" center="#{dataUtils.toString(tradesmanView.workingAreasModel.center)}" zoom="#{tradesmanView.workingAreasModel.zoomLevel}" type="terrain" style="width:100%;height:500px" model="#{tradesmanView.workingAreasModel.model}">
-				<p:ajax event="overlaySelect" listener="#{tradesmanView.workingAreasModel.onPolygonSelect}" />
-				<p:ajax event="stateChange" listener="#{tradesmanView.workingAreasModel.onStateChange}"/>
-			</p:gmap>
+			<p:outputPanel id="mapContainer">
+				<div>
+					<p:commandButton rendered="#{not tradesmanView.workingAreasModel.currentNode.root}" 
+									 value="Previous Areas" actionListener="#{tradesmanView.workingAreasModel.showParent}" 
+									 update="mainForm:mainTabs:mapContainer" />
+					<p:commandButton rendered="#{not empty tradesmanView.workingAreasModel.currentNode.firstChild and tradesmanView.workingAreasModel.currentNode.firstChild.leaf}" 
+								     value="Select All" actionListener="#{tradesmanView.workingAreasModel.selectAllChildren}" update="mainForm:mainTabs:mapContainer" />
+					<p:commandButton rendered="#{not empty tradesmanView.workingAreasModel.currentNode.firstChild and tradesmanView.workingAreasModel.currentNode.firstChild.leaf}" 
+								     value="Unselect All" actionListener="#{tradesmanView.workingAreasModel.unselectAllChildren}" update="mainForm:mainTabs:mapContainer" />
+					
+				</div>
+				<p:gmap id="gmap" widgetVar="gmap" center="#{dataUtils.toString(tradesmanView.workingAreasModel.center)}" zoom="#{tradesmanView.workingAreasModel.zoomLevel}" type="terrain" style="width:100%;height:500px" model="#{tradesmanView.workingAreasModel.model}" update="mainForm:mainTabs:gmap">
+					<p:ajax event="overlaySelect" listener="#{tradesmanView.workingAreasModel.onPolygonSelect}" update="mainForm:mainTabs:mapContainer" />
+					<p:ajax event="stateChange" listener="#{tradesmanView.workingAreasModel.onStateChange}"/>
+				</p:gmap>
+			</p:outputPanel>
 	    </div>
+	    
+	    <div class="ui-g-12">
+			<fixxit:dataComments rendered="#{not tradesmanView.newTradesman}" dataType="1" dataId="#{tradesmanView.id}" />
+		</div>
 	</div>
 	
 	<div class="padding-9">

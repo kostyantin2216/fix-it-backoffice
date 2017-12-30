@@ -6,7 +6,6 @@ package com.fixit.bo.maps.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.map.OverlaySelectEvent;
 import org.primefaces.model.map.MapModel;
 import org.primefaces.model.map.Polygon;
@@ -40,8 +39,10 @@ public class SelectableMapModelWrapper extends MapModelWrapperDelegate {
 		MapModel mapModel = getModel();
 		for(String selectedArea : selectedAreasIds) {
 			Polygon polygon = (Polygon) mapModel.findOverlay(selectedArea);
-			select(polygon);
-			mSelectedAreaIds.add(selectedArea);
+			if(polygon != null) {
+				select(polygon);
+				mSelectedAreaIds.add(selectedArea);
+			}
 		}
 	}
 	
@@ -49,24 +50,27 @@ public class SelectableMapModelWrapper extends MapModelWrapperDelegate {
 		MapModel mapModel = getModel();
 		for(String selectedArea : mSelectedAreaIds) {
 			Polygon polygon = (Polygon) mapModel.findOverlay(selectedArea);
-			unselect(polygon);
+			if(polygon != null) {
+				unselect(polygon);
+			}
 		}
 		mSelectedAreaIds.clear();
 	}
 
 	@Override
-	public void onPolygonSelect(OverlaySelectEvent event) {
-		Polygon polygon = (Polygon) event.getOverlay();
-		String id = event.getOverlay().getId();
-		if(mSelectedAreaIds.contains(id)) {
-			mSelectedAreaIds.remove(id);
-			unselect(polygon);
-		} else {
-			mSelectedAreaIds.add(id);
-			select(polygon);
-		}
-		RequestContext context = RequestContext.getCurrentInstance();
-		context.update(getMapElementId());
+	public boolean onPolygonSelect(OverlaySelectEvent event) {
+		if(!super.onPolygonSelect(event)) {
+			Polygon polygon = (Polygon) event.getOverlay();
+			String id = event.getOverlay().getId();
+			if(mSelectedAreaIds.contains(id)) {
+				mSelectedAreaIds.remove(id);
+				unselect(polygon);
+			} else {
+				mSelectedAreaIds.add(id);
+				select(polygon);
+			}
+		} 
+		return true;
 	}
 	
 }

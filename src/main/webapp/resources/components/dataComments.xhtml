@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+<composite:interface>
+	<composite:attribute name="dataType" type="java.lang.Integer" />
+	<composite:attribute name="dataId" type="java.lang.String" />
+</composite:interface>
+
+<composite:implementation>
+	<h:panelGroup id="commentsContainer">	
+		<div>
+			<p:outputLabel for="commentContent" value="New Comment" />
+			<p:inputTextarea id="commentContent" value="#{dataCommentsBean.editableComment.content}" styleClass="full-width" />
+			<p:commandButton value="Save Comment" update="commentsContainer"
+							 actionListener="#{dataCommentsBean.saveEditableComment(cc.attrs.dataType, cc.attrs.dataId)}" />
+		</div>
+		
+		<div>
+			<div class="title">Previous Comments</div>
+			<p:dataList id="commentsList" var="comment" value="#{dataCommentsBean.getComments(cc.attrs.dataType, cc.attrs.dataId)}" >
+				<p>#{comment.content}</p>
+				<small><h:outputText value="#{comment.createdAt}" >
+					<f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+				</h:outputText></small>
+				<p:commandButton actionListener="#{dataCommentsBean.deleteComment(comment)}" styleClass="float-right" 
+								 update="commentsList" icon="ui-icon-trash" value="Delete Comment" />
+			</p:dataList>
+		</div>
+	</h:panelGroup>
+</composite:implementation>
+
+</html>

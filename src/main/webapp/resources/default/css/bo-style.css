@@ -9,12 +9,18 @@
 .input-user {
 	width: 70%;	
 }
-.input-user > input {
+.input-user-full {
 	width: 100%;
+}
+.input-user > input, .input-user-full > input {
+	width: 95%;
 }
 button.btn-new-user {
 	width: 25%;
 	float: right;
+}
+.data-comment {
+	border-bottom: 1px solid #000;
 }
 
 /* Primefaces override */
@@ -529,6 +535,10 @@ button.btn-new-user {
 
 .half-width {
 	width: 50%;
+}
+
+.no-padding {
+	padding: 0px;
 }
 
 .padding-9 {

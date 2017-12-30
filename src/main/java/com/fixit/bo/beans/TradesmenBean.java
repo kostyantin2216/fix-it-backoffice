@@ -4,7 +4,9 @@
 package com.fixit.bo.beans;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -20,17 +22,17 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.model.map.LatLng;
 import org.springframework.util.StringUtils;
 
-import com.fixit.bo.maps.model.BaseMapModelWrapper;
+import com.fixit.bo.maps.model.ParentChildMapModelWrapper;
 import com.fixit.bo.views.TradesmanView;
 import com.fixit.components.users.UserLeadFactory;
 import com.fixit.core.dao.mongo.MapAreaDao;
 import com.fixit.core.dao.mongo.TradesmanDao;
 import com.fixit.core.dao.sql.ProfessionDao;
-import com.fixit.core.data.MapAreaType;
 import com.fixit.core.data.UserLead;
 import com.fixit.core.data.mongo.MapArea;
 import com.fixit.core.data.mongo.Tradesman;
 import com.fixit.core.logging.FILog;
+import com.fixit.core.structure.TreeNode;
 import com.fixit.core.utils.Constants;
 import com.fixit.core.utils.Formatter;
 
@@ -61,7 +63,6 @@ public class TradesmenBean implements Serializable {
 	
 	private List<Tradesman> mTradesmen;
 	private List<Tradesman> mFilteredTradesmen;
-	private List<MapArea> mMapAreas;
 	
 
 	@PostConstruct
@@ -123,15 +124,9 @@ public class TradesmenBean implements Serializable {
 		return mUserLeads;
 	}
 	
-	public List<MapArea> getMapAreas() {
-		if(mMapAreas == null) {
-			mMapAreas = mMapAreaDao.getAreasForType(MapAreaType.Ward);
-		}
-		return mMapAreas;
-	}
-	
-	private BaseMapModelWrapper createBaseMapModelWrapper() {
-		return new BaseMapModelWrapper(getMapAreas(), "mainForm:mainTabs:gmap", new LatLng(-26.1715046, 27.9699835));
+	private ParentChildMapModelWrapper createBaseMapModelWrapper(String[] workingAreas) {
+		TreeNode<MapArea> mapAreaNode = mMapAreaDao.getNode(MapAreaDao.ID_JOBURG_PROVINCE);
+		return new ParentChildMapModelWrapper(mapAreaNode, new HashSet<>(Arrays.asList(workingAreas)), new LatLng(-26.1715046, 27.9699835));
 	}
 	
 	public String getProfessionNames(Tradesman tradesman) {
@@ -153,12 +148,12 @@ public class TradesmenBean implements Serializable {
 	}
 	
 	public void createTradesman() {
-		mTradesmanView = TradesmanView.newTradesman(createBaseMapModelWrapper());
+		mTradesmanView = TradesmanView.newTradesman(createBaseMapModelWrapper(new String[0]));
 		mUserLeads = Collections.emptyList();
 	}
 	
 	public void onTradesmanSelected(SelectEvent event) {
-		mTradesmanView = TradesmanView.forTradesman(mSelectedTradesman, createBaseMapModelWrapper());
+		mTradesmanView = TradesmanView.forTradesman(mSelectedTradesman, createBaseMapModelWrapper(mSelectedTradesman.getWorkingAreas()));
 		mUserLeads = mUserLeadFactory.getLeadsForTradesman(mSelectedTradesman.get_id());
 	}
 	
@@ -177,7 +172,7 @@ public class TradesmenBean implements Serializable {
 				if(tradesman.get_id() != null) {
 					mTradesmen.add(tradesman);
 					mSelectedTradesman = tradesman;
-					mTradesmanView = TradesmanView.forTradesman(tradesman, createBaseMapModelWrapper());
+					mTradesmanView = TradesmanView.forTradesman(tradesman, createBaseMapModelWrapper(mSelectedTradesman.getWorkingAreas()));
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Saved new tradesman"));
 				} else {
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Couldn't save tradesman"));

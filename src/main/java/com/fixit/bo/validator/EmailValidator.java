@@ -35,10 +35,12 @@ public class EmailValidator implements Validator, ClientValidator {
         if(value == null) {
             return;
         }
-         
-        if(!pattern.matcher(value.toString()).matches()) {
-            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", 
-                        value + " is not a valid email;"));
+        String val = value.toString();
+        if(!val.trim().isEmpty()) {
+	        if(!pattern.matcher(val).matches()) {
+	            throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Error", 
+	                        value + " is not a valid email;"));
+	        }
         }
     }
  

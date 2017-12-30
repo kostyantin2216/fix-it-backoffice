@@ -5,6 +5,8 @@ package com.fixit.bo.general;
 
 import java.util.Date;
 
+import com.fixit.core.data.UserType;
+import com.fixit.core.data.mongo.CommonUser;
 import com.fixit.core.data.mongo.OrderData;
 
 /**
@@ -25,6 +27,8 @@ public class OrderDataFilter {
 	public static OrderDataFilter createCopy(OrderDataFilter oldFilter) {
 		OrderDataFilter newFilter = new OrderDataFilter();
 		newFilter.tableType = oldFilter.tableType;
+		newFilter.userType = oldFilter.userType;
+		newFilter.user = oldFilter.user;
 		newFilter.fromDate = oldFilter.fromDate;
 		newFilter.toDate = oldFilter.toDate;
 		newFilter.professionId = oldFilter.professionId;
@@ -32,6 +36,8 @@ public class OrderDataFilter {
 	}
 
 	private OrderTableType tableType;
+	private UserType userType;
+	private CommonUser user;
 	private Date fromDate;
 	private Date toDate;
 	private int professionId;
@@ -46,6 +52,22 @@ public class OrderDataFilter {
 		this.tableType = tableType;
 	}
 	
+	public UserType getUserType() {
+		return userType;
+	}
+
+	public void setUserType(UserType userType) {
+		this.userType = userType;
+	}
+
+	public CommonUser getUser() {
+		return user;
+	}
+
+	public void setUser(CommonUser user) {
+		this.user = user;
+	}
+
 	public Date getFromDate() {
 		return fromDate;
 	}
@@ -78,9 +100,15 @@ public class OrderDataFilter {
 		toDate = null;
 	}
 	
+	public void clearUser() {
+		user = null;
+	}
+	
 	public boolean isFiltered(OrderData order) {
 		return (tableType == OrderTableType.GENERAL || (order.isOrderComplete() 
 					? tableType == OrderTableType.COMPLETED : tableType == OrderTableType.ONGOING))
+				&& (userType == null || userType.equals(order.getUserType()))
+				&& (user == null || (user.getType() == order.getUserType() && user.get_id().equals(order.getUserId())))
 				&& (fromDate == null || !order.getCreatedAt().before(fromDate)) 
 				&& (toDate == null || !order.getCreatedAt().after(toDate))
 				&& (professionId == ALL_PROFESSIONS || professionId == order.getProfessionId()); 
@@ -93,7 +121,10 @@ public class OrderDataFilter {
 		result = prime * result + ((fromDate == null) ? 0 : fromDate.hashCode());
 		result = prime * result + professionId;
 		result = prime * result + ((tableType == null) ? 0 : tableType.hashCode());
+		result = prime * result + ((userType == null) ? 0 : userType.hashCode());
 		result = prime * result + ((toDate == null) ? 0 : toDate.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.getType().hashCode());
+		result = prime * result + ((user == null) ? 0 : user.get_id().hashCode());
 		return result;
 	}
 
@@ -115,11 +146,28 @@ public class OrderDataFilter {
 			return false;
 		if (tableType != other.tableType)
 			return false;
+		if (userType != other.userType)
+			return false;
 		if (toDate == null) {
 			if (other.toDate != null)
 				return false;
 		} else if (!toDate.equals(other.toDate))
 			return false;
+		if (user == null) {
+			if (other.user != null)
+				return false;
+			else
+				return true;
+		} else if (other.user == null) {
+			return false;
+		} else {		
+			if (!user.getType().equals(other.user.getType()))
+				return false;
+			if (!user.get_id().equals(other.user.get_id()))
+				return false;
+		}
+		
+		
 		return true;
 	}
 	

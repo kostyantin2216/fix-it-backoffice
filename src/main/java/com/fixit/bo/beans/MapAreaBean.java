@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import com.fixit.bo.maps.filters.MapAreaFilterDataLoader;
 import com.fixit.bo.maps.filters.MapModelFilterer.FilterType;
-import com.fixit.bo.maps.model.BaseMapModelWrapper;
+import com.fixit.bo.maps.model.SimpleMapModelWrapper;
 import com.fixit.bo.maps.model.FilterableMapModelWrapper;
 import com.fixit.bo.maps.model.MapModelWrapper;
 import com.fixit.bo.views.MapAreaFilterView;
@@ -56,7 +56,7 @@ public class MapAreaBean {
 	private void initMapModel() {
 		List<MapArea> mapAreas = mapAreaDao.getAreasForType(MapAreaType.Ward);
 		mapModel = new FilterableMapModelWrapper(
-				new BaseMapModelWrapper(mapAreas, "mainForm:gmap", new LatLng(-26.1715046, 27.9699835)),
+				new SimpleMapModelWrapper(mapAreas, new LatLng(-26.1715046, 27.9699835)),
 				mapAreaFilterDataLoader
 		);
 	}

@@ -6,6 +6,7 @@ package com.fixit.bo.maps.model;
 import java.util.Map;
 
 import org.primefaces.model.map.Overlay;
+import org.primefaces.model.map.Polygon;
 
 import com.fixit.bo.maps.filters.MapModelFilterer;
 import com.fixit.bo.maps.filters.MapModelFilterer.FilterType;
@@ -42,13 +43,12 @@ public class FilterableMapModelWrapper extends MapModelWrapperDelegate {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void loadFilterData(FilterType filterType) {
 		Map<String, Object> filterData = mFilterDataLoader.loadFilterData(filterType);
 		for(Map.Entry<String, Object> filterEntry : filterData.entrySet()) {
 			Overlay overlay = getModel().findOverlay(filterEntry.getKey());
 			if(overlay != null) {
-				((Map<String, Object>) overlay.getData()).put(filterType.getKey(), filterEntry.getValue());
+				setData((Polygon) overlay, filterType.getKey(), filterEntry.getValue());
 			}
 		}
 	}
