@@ -18,8 +18,19 @@
 				<h:form id="mainForm">
 				
 					<h:messages id="msgs" />
+						
+					<p:selectOneButton id="configurationsViewType" value="#{configurationsBean.viewType}">
+						<p:ajax update="@form" event="change"/>
+						<f:selectItems value="#{selectionsBean.configurationsViewTypes}" />
+					</p:selectOneButton>
+					    	    	    
+    	 			<ui:fragment rendered="#{configurationsBean.viewType eq 'STORED_PROPERTIES'}">
+    	    	    	<ui:include src="/faces/layout/storedPropertyTable.xhtml" />
+    	    	    </ui:fragment>
     	    	    
-    	    	    <ui:include src="/faces/layout/storedPropertyTable.xhtml" />
+    	    	    <ui:fragment rendered="#{configurationsBean.viewType eq 'TRAFFIC_SOURCES'}">
+    	    	    	<ui:include src="/faces/layout/trafficSourceTable.xhtml" />
+    	    	    </ui:fragment>
     	    	    
 				</h:form>
             </p:panel>

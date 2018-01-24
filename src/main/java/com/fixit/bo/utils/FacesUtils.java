@@ -23,7 +23,7 @@ import com.fixit.core.logging.FILog;
  */
 public class FacesUtils {
 	
-	private final static String DIALOG_VIEW_PATH = "/faces/dialogs/";
+	final static String DIALOG_VIEW_PATH = "/faces/dialogs/";
 
 	public static void printRequest() {
 		HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance()
@@ -79,22 +79,19 @@ public class FacesUtils {
 		return context.getApplication().evaluateExpressionGet(context, el, cls);
 	}
 	
-	public static void showDialog(String view, int height, int width, boolean resizable, boolean modal) {
-		showDialog(view, height, width, resizable, modal, null);
-	}
-	
-	public static void showDialog(String view, int height, int width, boolean resizable, boolean modal, Map<String, String> params) {
+	public static Map<String, Object> createDialogOptions(int height, int width, boolean resizeable, boolean modal) {
 		Map<String,Object> options = new HashMap<String, Object>();
 		options.put("width", width);
 		options.put("height", height);
 		options.put("contentWidth", width);
 		options.put("contentHeight", height);
-		options.put("resizable", resizable);
+		options.put("resizable", resizeable);
         options.put("modal", modal);
-        
-        Map<String, List<String>> paramsMap = null;
-        if(params != null) {
-        	paramsMap = params.entrySet()
+        return options;
+	}
+	
+	public static Map<String, List<String>> transformDialogParams(Map<String, String> params) {
+        return params.entrySet()
         					  .stream()
         					  .collect(
         							  Collectors.toMap(
@@ -102,10 +99,28 @@ public class FacesUtils {
         									  e -> Arrays.asList(e.getValue())
         							  )
         					  );
-        	
+	}
+	
+	protected static void showDialog(String view, int height, int width, boolean resizable, boolean modal) {
+		showDialog(view, height, width, resizable, modal, null);
+	}
+	
+	protected static void showDialog(String view, int height, int width, boolean resizeable, boolean modal, Map<String, String> params) {
+		Map<String,Object> options = createDialogOptions(height, width, resizeable, modal);
+        
+        Map<String, List<String>> paramsMap = null;
+        if(params != null) {
+        	paramsMap = transformDialogParams(params);
         }
         
 		RequestContext.getCurrentInstance().openDialog(DIALOG_VIEW_PATH + view, options, paramsMap);
+	}
+	
+	public static String getExternalContextRequestParam(String key) {
+		return FacesContext.getCurrentInstance()
+		 .getExternalContext()
+		 .getRequestParameterMap()
+		 .get(key);
 	}
 	
 }

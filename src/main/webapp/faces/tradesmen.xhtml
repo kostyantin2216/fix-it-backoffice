@@ -26,13 +26,19 @@
     	    	    <ui:fragment rendered="#{not empty tradesmenBean.tradesmanView}">
     	    	    	<p:commandButton class="m-bottom-10" value="Close" action="#{tradesmenBean.unselectTrademan()}" update="@form" />
     	    	    	
-    	    	    	<p:tabView id="mainTabs">
-					        <p:tab title="#{tradesmenBean.tradesmanView.newTradesman ? 'New Tradesman' : 'Profile'}">
+    	    	    	<p:commandButton class="m-bottom-10" value="Direct Order" rendered="#{not empty tradesmenBean.selectedTradesman}"
+    	    	    					 action="#{tradesmenBean.directOrder(tradesmenBean.selectedTradesman)}"/>
+    	    	    	
+    	    	    	<h:outputText rendered="#{not empty tradesmenBean.selectedTradesman}" styleClass="block"
+    	    	    				  value="ID: #{tradesmenBean.selectedTradesman._id.toHexString()}" />
+    	    	    	
+    	    	    	<p:tabView id="mainTabs" dynamic="true" >    	    	    	
+					        <p:tab id="profile" title="#{tradesmenBean.tradesmanView.newTradesman ? 'New Tradesman' : 'Profile'}">
 					            <ui:include src="/faces/layout/tradesmanProfile.xhtml" >
     	    	    				<ui:param name="tradesmanView" value="#{tradesmenBean.tradesmanView}" />
     	    	    			</ui:include>
 					        </p:tab>
-					        <p:tab title="Statistics" rendered="#{not tradesmenBean.tradesmanView.newTradesman}">
+					        <p:tab id="stats" title="Statistics" rendered="#{not tradesmenBean.tradesmanView.newTradesman}">
 					            <ui:include src="/faces/layout/tradesmanStatistics.xhtml" />
 					        </p:tab>
 					     </p:tabView>

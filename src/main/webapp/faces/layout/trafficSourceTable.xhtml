@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<ui:composition>
+
+	<p:outputPanel styleClass="m-top-10 m-bottom-10" rendered="#{not empty trafficSourceBean.newTrafficSource}">
+		<p:outputLabel for="newTrafficSourceName" value="Name of new traffic source: "/>
+		<p:inputText id="newTrafficSourceName" value="#{trafficSourceBean.newTrafficSource.name}" />
+		<p:commandButton value="Save" action="#{trafficSourceBean.saveNewTrafficSource()}"
+						 update="@form" styleClass="float-right" />
+	</p:outputPanel> 
+
+	<p:dataTable id="trafficSources" var="trafficSource" editable="true"
+		value="#{trafficSourceBean.trafficSources}" resizableColumns="true" >
+		<f:facet name="header">
+			<h:commandLink value="xls">
+				<p:dataExporter type="xls" target="trafficSources" fileName="trafficSources" />
+			</h:commandLink>
+
+			<h:commandLink value="pdf">
+				<p:dataExporter type="pdf" target="trafficSources" fileName="trafficSources" />
+			</h:commandLink>
+
+			<h:commandLink value="csv">
+				<p:dataExporter type="csv" target="trafficSources" fileName="trafficSources" />
+			</h:commandLink>
+
+			<h:commandLink value="xml">
+				<p:dataExporter type="xml" target="trafficSources" fileName="trafficSources" />
+			</h:commandLink>
+
+			<h:outputText value="Traffic Sources" />	
+			
+			<p:commandButton value="New" icon="ui-icon-plus" update="@form"  
+            				 actionListener="#{trafficSourceBean.createNewTrafficSource}"
+            				 styleClass="float-right"/> 
+
+		</f:facet>
+		
+		<p:ajax event="rowEdit" listener="#{trafficSourceBean.onTafficSourceEdit}" update="mainForm:trafficSources" />
+		
+		<p:column width="30" headerText="Id" sortBy="#{trafficSource.id}">
+			<h:outputText value="#{trafficSource.id}" />
+		</p:column>
+ 
+       	<p:column headerText="Name" sortBy="#{trafficSource.name}">
+      		<p:cellEditor>
+            	<f:facet name="output"><h:outputText value="#{trafficSource.name}" /></f:facet>
+                <f:facet name="input"><p:inputText id="name" value="#{trafficSource.name}" style="width:96%"/></f:facet>
+            </p:cellEditor>
+		</p:column>
+		
+		<p:column width="32">
+           <p:rowEditor />
+       </p:column>
+       
+       <p:column width="39">
+           <p:commandButton icon="ui-icon-trash" actionListener="#{trafficSourceBean.deleteSource(trafficSource)}" update="mainForm:trafficSources" />
+       </p:column>
+	</p:dataTable>
+
+</ui:composition>
+</html>

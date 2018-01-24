@@ -11,6 +11,7 @@ import com.fixit.core.dao.mongo.TradesmanDao;
 import com.fixit.core.dao.mongo.impl.TradesmanDaoImpl;
 import com.fixit.core.dao.sql.JobReasonDao;
 import com.fixit.core.dao.sql.ProfessionDao;
+import com.fixit.core.dao.sql.TrafficSourceDao;
 
 /**
  * @author 		Kostyantin
@@ -32,6 +33,10 @@ public class DataAccessBean {
 	
 	public TradesmanDao getTradesmen() {
 		return beanFactory.getBean(TradesmanDaoImpl.class);
+	}
+	
+	public TrafficSourceDao getTrafficSources() {
+		return (TrafficSourceDao) beanFactory.getBean("trafficSourceDao");
 	}
 
 }

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets" 
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+   	  xmlns:fixxit = "http://java.sun.com/jsf/composite/components" >
+	<ui:composition template="/faces/templates/basic-dialog-fragment.xhtml">
+		<ui:define name="title">Direct Order</ui:define>
+		
+		<ui:define name="content">
+			<div class="dialog-direct-order ui-g">
+				<h:messages id="msgs" styleClass="ui-g-12" />
+				
+				<p:outputPanel id="tradesman" styleClass="tradesman-line ui-g-12">
+					<div class="ui-g-6">
+						<p:graphicImage value="#{directOrderBean.view.tradesman.logoUrl}" styleClass="logo"
+						 				rendered="#{not empty directOrderBean.view.tradesman.logoUrl}" />
+					</div>
+					<div class="ui-g-6">
+						<div>
+							<p:outputLabel styleClass="inline-label" value="Contact Name:" />
+							<h:outputText value="#{directOrderBean.view.tradesman.contactName}" styleClass="contact-name" />
+						</div>
+						<div>
+							<p:outputLabel styleClass="inline-label" value="Company Name:" />
+							<h:outputText value="#{directOrderBean.view.tradesman.companyName}" styleClass="company-name" />
+						</div>
+						<ui:fragment rendered="#{not empty directOrderBean.view.tradesman}">
+							<div class="m-top-20">
+								<p:outputLabel styleClass="inline-label" value="Profession:" />
+								<p:selectOneMenu id="professionInput" value="#{directOrderBean.view.profession}">
+						            <f:selectItem itemLabel="Select Profession" itemValue="-1" />
+						            <f:selectItems value="#{selectionsBean.getProfessionSelectionsForTradesman(directOrderBean.view.tradesman)}" />
+					        	</p:selectOneMenu>
+				        	</div>
+			        	</ui:fragment>
+						<div class="m-top-30">
+							<p:commandButton value="#{empty directOrderBean.view.tradesman ? 'Choose' : 'Change'} Tradesman"
+											 actionListener="#{directOrderBean.selectTradesman()}" >
+								<p:ajax event="dialogReturn" listener="#{directOrderBean.onTradesmanSelected}" update="mainForm:tradesman" />
+					        </p:commandButton> 
+						</div>
+					</div>
+				</p:outputPanel>
+				
+				<div class="ui-g-12">
+					<fixxit:addressAutocomplete address="#{directOrderBean.view.location.googleAddress}" 
+												onAddressSelected="#{directOrderBean.onAddressSelected}"/>
+				</div>
+				
+				<div class="ui-g-3">
+					<p:outputLabel value="Traffic Source" for="trafficSource" styleClass="block"/>
+				    <p:selectOneMenu id="trafficSource" value="#{directOrderBean.view.trafficSource}" >
+				        <f:selectItem itemLabel="Pick Source" itemValue="-1" />
+				        <f:selectItems value="#{selectionsBean.trafficSourceSelections}" />
+				    </p:selectOneMenu>
+				</div>
+				
+				<div class="ui-g-9" >
+					<fixxit:userAutocomplete user="#{directOrderBean.view.user}" onUserCreated="#{directOrderBean.onUserCreated}" />
+				</div>
+				
+				<div class="ui-g-6" >
+					<p:outputLabel value="User Comment" styleClass="block" />
+    				<p:inputTextarea id="userComment" styleClass="userComment" value="#{directOrderBean.view.comment}" rows="3" />
+				</div>
+				
+				<div class="ui-g-6" >
+					<p:outputLabel value="Order Comment" styleClass="block" />
+    				<p:inputTextarea id="orderComment" styleClass="orderComment" value="#{directOrderBean.view.orderComment}" rows="3" />
+				</div>
+				
+				<p:commandButton styleClass="m-top-5 center" value="Send" actionListener="#{directOrderBean.sendOrderAndCloseDialog()}" update="@form" 
+            				 	 onstart="showLoader();"
+            				 	 oncomplete="hideLoader();"/>
+			</div>
+		</ui:define>
+	</ui:composition>
+</html>

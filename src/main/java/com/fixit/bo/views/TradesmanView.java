@@ -42,6 +42,8 @@ public class TradesmanView implements DataModelView<Tradesman> {
 		tv.workingDays = transform(tradesman.getWorkingDays());
 		tv.active = tradesman.isActive();
 		tv.priority = tradesman.getPriority();
+		tv.idProvided = tradesman.isIdProvided();
+		tv.tradeCertificateProvided = tradesman.isTradeCertificateProvided();
 		return tv;
 	}
 	
@@ -96,6 +98,8 @@ public class TradesmanView implements DataModelView<Tradesman> {
 	private Map<Integer, List<WorkingHours>> workingDays;
 	private boolean active;
 	private int priority;
+	private boolean idProvided;
+	private boolean tradeCertificateProvided;
 	
 	private TradesmanView() { }
 	
@@ -203,6 +207,22 @@ public class TradesmanView implements DataModelView<Tradesman> {
 		this.priority = priority;
 	}
 	
+	public boolean isIdProvided() {
+		return idProvided;
+	}
+
+	public void setIdProvided(boolean idProvided) {
+		this.idProvided = idProvided;
+	}
+
+	public boolean isTradeCertificateProvided() {
+		return tradeCertificateProvided;
+	}
+
+	public void setTradeCertificateProvided(boolean tradeCertificateProvided) {
+		this.tradeCertificateProvided = tradeCertificateProvided;
+	}
+
 	public void addWorkingHours(Integer day) {
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.HOUR_OF_DAY, 8);
@@ -225,7 +245,7 @@ public class TradesmanView implements DataModelView<Tradesman> {
 	
 	@Override
 	public boolean updateDMO(Tradesman t) {
-		if(id.equals(t.get_id().toHexString())) {
+		if(!StringUtils.isEmpty(id) && id.equals(t.get_id().toHexString())) {
 			fillTradesman(t);
 		
 			return true;
@@ -262,6 +282,8 @@ public class TradesmanView implements DataModelView<Tradesman> {
 			t.setWorkingAreas(areaIds.toArray(new String[areaIds.size()]));
 		}
 		t.setWorkingDays(transform(workingDays));
+		t.setIdProvided(idProvided);
+		t.setTradeCertificateProvided(tradeCertificateProvided);
 	}
 	
 	public static class WorkingHours {

@@ -3,15 +3,9 @@
  */
 package com.fixit.bo.beans;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -25,8 +19,11 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 import org.springframework.util.StringUtils;
 
-import com.fixit.bo.general.OrderDataFilter;
-import com.fixit.bo.general.OrderDataStore;
+import com.fixit.bo.filters.Filter;
+import com.fixit.bo.filters.FilterStore;
+import com.fixit.bo.filters.OrderDataFilter;
+import com.fixit.bo.general.OrderTableType;
+import com.fixit.bo.utils.DialogUtils;
 import com.fixit.bo.utils.FacesUtils;
 import com.fixit.bo.views.OrderView;
 import com.fixit.components.maps.MapAreaController;
@@ -39,12 +36,6 @@ import com.fixit.core.data.mongo.OrderData;
 import com.fixit.core.data.mongo.Tradesman;
 import com.fixit.core.logging.FILog;
 import com.fixit.core.utils.Constants;
-import com.google.maps.GeoApiContext;
-import com.google.maps.PlacesApi;
-import com.google.maps.errors.ApiException;
-import com.google.maps.model.AutocompletePrediction;
-import com.google.maps.model.ComponentFilter;
-import com.google.maps.model.PlaceAutocompleteType;
 
 /**
  * @author 		Kostyantin
@@ -54,9 +45,6 @@ import com.google.maps.model.PlaceAutocompleteType;
 @ViewScoped
 public class OrderBean implements Serializable {
 	private static final long serialVersionUID = -1502443699202960075L;
-
-	@ManagedProperty(value = "#{geoApiContext}")
-	private transient GeoApiContext mGeoApiContext;
 
 	@ManagedProperty(value = "#{mapAreaController}")
 	private transient MapAreaController mMapAreaController;
@@ -70,16 +58,12 @@ public class OrderBean implements Serializable {
 	@ManagedProperty(value = "#{tradesmanDao}")
 	private transient TradesmanDao mTradesmanDao;
 	
-	private OrderDataStore mOrderDataStore;
+	private FilterStore<OrderData> mOrderDataStore;
 	
 	private OrderData mSelectedOrder;
 	private OrderView mOrderView;
 	
 	private OrderDataFilter mTableFilter;
-	
-	public void setmGeoApiContext(GeoApiContext mGeoApiContext) {
-		this.mGeoApiContext = mGeoApiContext;
-	}
 
 	public void setmMapAreaController(MapAreaController mMapAreaController) {
 		this.mMapAreaController = mMapAreaController;
@@ -99,13 +83,11 @@ public class OrderBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
-		mTableFilter = OrderDataFilter.createDefault();
-		mOrderDataStore = new OrderDataStore(mOrderDao.findAll());
+		// We want 2 different filters instances, one for editing and one for the current values.
+		mTableFilter = OrderDataFilter.createDefault(); 
+		initStore(OrderDataFilter.createDefault());
 		
-		final String orderId = FacesContext.getCurrentInstance()
-									 .getExternalContext()
-									 .getRequestParameterMap()
-									 .get(Constants.ARG_ORDER_ID);
+		final String orderId = FacesUtils.getExternalContextRequestParam(Constants.ARG_ORDER_ID);
 		
 		if(!StringUtils.isEmpty(orderId) && ObjectId.isValid(orderId)) {
 			Optional<OrderData> order = mOrderDataStore.getData()
@@ -115,10 +97,19 @@ public class OrderBean implements Serializable {
 			if(order.isPresent()) {
 				FILog.i("setting selectd order: " + order.get());
 				mSelectedOrder = order.get();
+				onOrderSelected(null);
 			} else {
 				FILog.i("could not find order with id: " + orderId);
 			}
 		}
+	}
+	
+	private void initStore(Filter<OrderData> filter) {
+		mOrderDataStore = new FilterStore<>(
+				mOrderDao.findAll(), 
+				filter, 
+				(o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt())
+		);
 	}
 	
 	public List<OrderData> getOrderData() {
@@ -165,12 +156,30 @@ public class OrderBean implements Serializable {
 		onTableFilterChanged();
 	}
 	
+	public void clearTradesmanFilter() {
+		mTableFilter.clearTradesman();
+		
+		onTableFilterChanged();
+	}
+	
+	public String getRowStyleClass(OrderData orderData) {
+		if(mTableFilter.getTableType() == OrderTableType.GENERAL) {
+			if(orderData.isOrderComplete()) {
+				return "success";
+			} 
+			if(orderData.isOrderCancelled()) {
+				return "warning";
+			}
+		}
+		return null;
+	}
+	
 	public void refreshOrders() {
-		mOrderDataStore = new OrderDataStore(mOrderDao.findAll(), mOrderDataStore.getFilter());
+		initStore(OrderDataFilter.createCopy(mTableFilter));
 	}
 	
 	public void createNewOrder() {
-		FacesUtils.showDialog("dfChooseProfession", 255, 385, false, true);
+		DialogUtils.showProfessionSelection();
 	}
 	
 	public void onProfessionForNewOrderChosen(SelectEvent event) {
@@ -178,11 +187,25 @@ public class OrderBean implements Serializable {
 		mOrderView = OrderView.newOrder(profession);
 	}
 	
+	public void cancelOrder() {
+		if(mSelectedOrder != null && mOrderView != null) {
+			DialogUtils.requestInput("Cancel Reason", "Why is this order being cancelled?");
+		}
+	}
+	
+	public void onCancellationReasonProvided(SelectEvent event) {
+		String cancelReason = (String) event.getObject();
+		if(!StringUtils.isEmpty(cancelReason)) {
+			mSelectedOrder.setCancelReason(cancelReason);
+			mOrderView.setCancelReason(cancelReason);
+			mOrderDao.update(mSelectedOrder);
+		} else {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Cannot canel order without a reason."));
+		}
+	}
+	
 	public void completeOrder(OrderData orderData) {
-		Map<String, String> params = new HashMap<>();
-		params.put(Constants.ARG_ORDER_ID, orderData.get_id().toHexString());
-
-		FacesUtils.showDialog("dfCompleteOrder", 270, 270, false, true, params);
+		DialogUtils.showOrderCompletion(orderData.get_id().toHexString());
 	}
 	
 	public void completeOrderAndCloseDialog() {
@@ -208,10 +231,7 @@ public class OrderBean implements Serializable {
 	}
 	
 	public void chooseTradesman() {
-		Map<String, String> params = new HashMap<>();
-		params.put(Constants.ARG_PROFESSION, String.valueOf(mOrderView.getProfessionId()));
-		
-		FacesUtils.showDialog("dfTradesmenTable", 450, 1100, false, true, params);
+		DialogUtils.showTradesmenSelectionTable(mOrderView.getProfessionId());
 	}
 	
 	public void onTradesmanChosen(SelectEvent event) {
@@ -226,7 +246,13 @@ public class OrderBean implements Serializable {
 	}
 
 	public void onOrderSelected(SelectEvent event) {
-		List<Tradesman> tradesmen = mTradesmanDao.findIn(TradesmanDao.PROP_ID, (Object[]) mSelectedOrder.getTradesmen());
+		ObjectId[] tradesmenIds = mSelectedOrder.getTradesmen();
+		List<Tradesman> tradesmen;
+		if(tradesmenIds != null) {
+			tradesmen =  mTradesmanDao.findIn(TradesmanDao.PROP_ID, (Object[]) mSelectedOrder.getTradesmen());
+		} else {
+			tradesmen = null;
+		}
 		CommonUser user = mUserFactory.getUserForOrder(mSelectedOrder);
 		mOrderView = OrderView.forOrder(mSelectedOrder, user, tradesmen);
 	}
@@ -246,23 +272,6 @@ public class OrderBean implements Serializable {
 		}
     }
 	
-	public List<String> completeAddress(String query) {
-		try {
-			AutocompletePrediction[] prediction = PlacesApi.placeAutocomplete(mGeoApiContext, query)
-				.types(PlaceAutocompleteType.ADDRESS)
-				.components(ComponentFilter.country("ZA"))
-				.await();
-			
-			return Arrays.stream(prediction)
-						.map(p -> p.description)
-						.collect(Collectors.toList());
-		} catch (ApiException | InterruptedException | IOException e) {
-			FILog.e("Order address autocomplete", e.getMessage(), e);
-		}
-		
-		return Collections.emptyList();
-	}
-	
 	public void unselectOrder() {
 		mSelectedOrder = null;
 		mOrderView = null;
@@ -275,6 +284,7 @@ public class OrderBean implements Serializable {
 				mOrderDao.save(orderData);
 				if(orderData.get_id() != null) {
 					mOrderDataStore.addOrder(orderData);
+					mOrderDataStore.applyFilter(mTableFilter, true);
 					mSelectedOrder = orderData;
 					mOrderView = OrderView.forOrder(mSelectedOrder, mOrderView.getUser(), mOrderView.getTradesmen());
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Saved new order"));
@@ -285,6 +295,7 @@ public class OrderBean implements Serializable {
 				if(mOrderView.updateDMO(mSelectedOrder)) {
 					mOrderDao.update(mSelectedOrder);
 					mOrderDataStore.updateOrder(mSelectedOrder);
+					mOrderDataStore.applyFilter(mTableFilter, true);
 				} else {
 					FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Inconsistency in order data"));
 				}
@@ -303,6 +314,16 @@ public class OrderBean implements Serializable {
 			mOrderDataStore.removeOrder(mSelectedOrder);
 			unselectOrder();
 		}
+	}
+	
+	public void pickTradesmanForFilter() {
+		DialogUtils.showTradesmenSelectionTable();
+	}
+	
+	public void onTradesmanForFilterSelected(SelectEvent event) {
+		Tradesman tradesman = (Tradesman) event.getObject();
+		mTableFilter.setTradesman(tradesman);
+		onTableFilterChanged();
 	}
 
 }

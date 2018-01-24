@@ -47,6 +47,16 @@
 			<h:outputLabel value="Active" for="active" />
 		</div>
 		
+		<div class="ui-g-4" style="padding-top: 33px;" >
+			<p:selectBooleanCheckbox id="idProvided" value="#{tradesmanView.idProvided}" styleClass="p-right-10" />
+			<h:outputLabel value="ID Provided" for="idProvided" />
+		</div>
+		
+		<div class="ui-g-4" style="padding-top: 33px;" >
+			<p:selectBooleanCheckbox id="tradeCertificateProvided" value="#{tradesmanView.tradeCertificateProvided}" styleClass="p-right-10" />
+			<h:outputLabel value="Trade Certificate Provided" for="tradeCertificateProvided" />
+		</div>
+		
 		<div class="ui-g-12" >
 			<h:outputLabel value="Professions" for="professions" />
 			<p:selectManyCheckbox id="professions" value="#{tradesmanView.professions}" layout="grid" columns="3">

@@ -22,7 +22,9 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.model.map.LatLng;
 import org.springframework.util.StringUtils;
 
+import com.fixit.bo.general.TradesmenTableType;
 import com.fixit.bo.maps.model.ParentChildMapModelWrapper;
+import com.fixit.bo.utils.DialogUtils;
 import com.fixit.bo.views.TradesmanView;
 import com.fixit.components.users.UserLeadFactory;
 import com.fixit.core.dao.mongo.MapAreaDao;
@@ -57,8 +59,11 @@ public class TradesmenBean implements Serializable {
 	@ManagedProperty(value = "#{userLeadFactory}")
 	private transient UserLeadFactory mUserLeadFactory;
 	
-	private Tradesman mSelectedTradesman;
+	private TradesmenTableType mTableType;
+	
 	private TradesmanView mTradesmanView;
+	
+	private Tradesman mSelectedTradesman;
 	private List<UserLead> mUserLeads;
 	
 	private List<Tradesman> mTradesmen;
@@ -67,6 +72,7 @@ public class TradesmenBean implements Serializable {
 
 	@PostConstruct
 	public void init() {
+		mTableType = TradesmenTableType.GENERAL;
 		String profession = FacesContext.getCurrentInstance()
 										.getExternalContext()
 										.getRequestParameterMap()
@@ -116,12 +122,33 @@ public class TradesmenBean implements Serializable {
 		this.mSelectedTradesman = mSelectedTradesman;
 	}
 
+	public TradesmenTableType getTableType() {
+		return mTableType;
+	}
+
+	public void setTableType(TradesmenTableType mTableType) {
+		this.mTableType = mTableType;
+	}
+
 	public TradesmanView getTradesmanView() {
 		return mTradesmanView;
 	}
 	
 	public List<UserLead> getUserLeads() {
 		return mUserLeads;
+	}
+	
+	public String getRowStyleClassForTradesman(Tradesman tradesman) {
+		if(mTableType == TradesmenTableType.STATUS) {
+			if(tradesman.isActive()) {
+				if(tradesman.isIdProvided() && tradesman.isTradeCertificateProvided()) {
+					return "success";
+				} else {
+					return "warning";
+				}
+			} 
+		}
+		return null;
 	}
 	
 	private ParentChildMapModelWrapper createBaseMapModelWrapper(String[] workingAreas) {
@@ -203,6 +230,10 @@ public class TradesmenBean implements Serializable {
 	public void selectTradesmanFromDialog(Tradesman tradsesman) {
         RequestContext.getCurrentInstance().closeDialog(tradsesman);
     }
+	
+	public void directOrder(Tradesman tradesman) {
+		DialogUtils.showDirectOrder(tradesman.get_id().toHexString());
+	}
 	
 	public String exportProfessionsColumn(UIColumn uiCol) {
 		String result = "na";

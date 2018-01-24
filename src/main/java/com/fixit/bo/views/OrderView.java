@@ -52,6 +52,7 @@ public class OrderView implements DataModelView<OrderData> {
 		ov.setProfessionId(profession);
 		ov.setLocation(new JobLocation());
 		ov.setOrderType(OrderType.CUSTOM);
+		ov.setCreatedAt(new Date());
 		return ov;
 	}
 	
@@ -59,6 +60,7 @@ public class OrderView implements DataModelView<OrderData> {
 	private List<Tradesman> tradesmen;
 	private CommonUser user;
 	private int professionId;
+	private int trafficSourceId;
 	private JobLocation location;
 	private int[] jobReasons;
 	private String comment;
@@ -67,6 +69,7 @@ public class OrderView implements DataModelView<OrderData> {
 	private Date createdAt;
 	private BigDecimal amountCharged;
 	private double commissionPercentage;
+	private String cancelReason;
 	
 	private OrderView() { }
 	
@@ -166,6 +169,22 @@ public class OrderView implements DataModelView<OrderData> {
 		this.commissionPercentage = commissionPercentage;
 	}
 	
+	public int getTrafficSourceId() {
+		return trafficSourceId;
+	}
+
+	public void setTrafficSourceId(int trafficSourceId) {
+		this.trafficSourceId = trafficSourceId;
+	}
+
+	public String getCancelReason() {
+		return cancelReason;
+	}
+
+	public void setCancelReason(String cancelReason) {
+		this.cancelReason = cancelReason;
+	}
+
 	public BigDecimal calculateEarnings() {
 		if(amountCharged != null && amountCharged.signum() > 0 && commissionPercentage > 0) {
 			return Formatter.percentage(amountCharged, commissionPercentage);
@@ -186,6 +205,10 @@ public class OrderView implements DataModelView<OrderData> {
 		if(tradesmen != null) {
 			tradesmen.remove(tradesman);
 		}
+	}
+	
+	public boolean isCancelled() {
+		return !StringUtils.isEmpty(cancelReason);
 	}
 
 	@Override
@@ -226,6 +249,8 @@ public class OrderView implements DataModelView<OrderData> {
 		orderData.setCreatedAt(createdAt);
 		orderData.setAmountCharged(amountCharged);
 		orderData.setCommissionPercentage(commissionPercentage);
+		orderData.setTrafficSourceId(trafficSourceId);
+		orderData.setCancelReason(cancelReason);
 	}
 	
 	public Set<String> validate() {

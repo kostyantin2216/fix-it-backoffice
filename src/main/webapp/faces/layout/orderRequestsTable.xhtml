@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:fixxit="http://java.sun.com/jsf/composite/components">
+<ui:composition>
+
+	<p:outputPanel styleClass="m-bottom-10">
+		<p:selectOneButton id="orderRequestsTableType"
+			value="#{orderRequestBean.filter.tableType}">
+			<p:ajax update="@form" event="change" listener="#{orderRequestBean.onTableFilterChanged}"/>
+			<f:selectItems value="#{selectionsBean.orderRequestsTableTypes}" />
+		</p:selectOneButton>
+	</p:outputPanel>
+
+	<p:dataTable id="orderRequests" var="orderRequest"
+		value="#{orderRequestBean.orderRequests}" resizableColumns="true"
+		selectionMode="single" rowStyleClass="#{orderRequestBean.getRowStyleClass(orderRequest)}"
+		selection="#{orderRequestBean.selectedRequest}" rowKey="#{orderRequest._id}">
+		
+		<f:facet name="header">
+			<h:commandLink value="xls">
+				<p:dataExporter type="xls" target="orderRequests"
+					fileName="orderRequests" />
+			</h:commandLink>
+
+			<h:commandLink value="pdf">
+				<p:dataExporter type="pdf" target="orderRequests"
+					fileName="orderRequests" />
+			</h:commandLink>
+
+			<h:commandLink value="csv">
+				<p:dataExporter type="csv" target="orderRequests"
+					fileName="orderRequests" />
+			</h:commandLink>
+
+			<h:commandLink value="xml">
+				<p:dataExporter type="xml" target="orderRequests"
+					fileName="orderRequests" />
+			</h:commandLink>
+
+			<h:outputText value="Order Requests" />
+
+			<p:commandButton id="toggler" type="button" value="Columns"
+				styleClass="float-right" icon="ui-icon-calculator" />
+			<p:columnToggler datasource="orderRequests" trigger="toggler" />
+		</f:facet>
+
+		<p:ajax event="rowSelect" listener="#{orderRequestBean.onRequestSelected}"
+			update="@form" onstart="showLoader()" oncomplete="hideLoader()" />
+
+		<p:column width="200" headerText="Id"
+			sortBy="#{orderRequest._id.toHexString()}">
+			<h:outputText value="#{orderRequest._id.toHexString()}" />
+		</p:column>
+
+		<p:column width="200" headerText="User"
+			sortBy="#{orderRequest.userId.toHexString()}">
+			<h:outputText value="#{orderRequest.userId.toHexString()}" />
+		</p:column>
+
+		<p:column width="80" headerText="Profession"
+			sortBy="#{professionBean.getNameForProfession(orderRequest.professionId)}">
+			<h:outputText
+				value="#{professionBean.getNameForProfession(orderRequest.professionId)}" />
+		</p:column>
+
+		<p:column width="70" headerText="Tradesmen"
+			sortBy="#{fn:length(orderRequest.tradesmen)}">
+			<h:outputText value="#{fn:length(orderRequest.tradesmen)}" />
+		</p:column>
+
+		<p:column headerText="Location"
+			sortBy="#{orderRequest.existingAddress}">
+			<h:outputText value="#{orderRequest.existingAddress}" />
+		</p:column>
+
+		<p:column headerText="Traffic Source"
+			sortBy="#{trafficSourceBean.getNameForSource(orderRequest.trafficSourceId)}">
+			<h:outputText
+				value="#{trafficSourceBean.getNameForSource(orderRequest.trafficSourceId)}" />
+		</p:column>
+
+		<p:column width="80" headerText="Order Type"
+			sortBy="#{orderRequest.orderType}">
+			<h:outputText value="#{orderRequest.orderType}" />
+		</p:column>
+
+		<p:column width="130" headerText="Created At"
+			sortBy="#{orderRequest.createdAt}">
+			<h:outputText value="#{orderRequest.createdAt}">
+				<f:convertDateTime type="date" pattern="HH:mm dd-MM-yyyy" />
+			</h:outputText>
+		</p:column>
+	</p:dataTable>
+</ui:composition>
+</html>

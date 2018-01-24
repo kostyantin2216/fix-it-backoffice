@@ -52,38 +52,66 @@
 			</div>
 		</div>
 
-		<div class="ui-g-12">
+		<div class="ui-g-6">
 			<div class="title">Time Range Filter</div>
 			<div class="ui-g-6">
-				<p:outputLabel for="fromDateRange" value="From Date: " />
-				<p:calendar id="fromDateRange" widgetVar="fromDateCalWidget"
-					value="#{orderBean.tableFilter.fromDate}" 
-					pattern="dd/MM/yyyy" >
-					<p:ajax event="dateSelect"
-						listener="#{orderBean.onTableFilterChanged()}"
-						update="mainForm:orders" />
-				</p:calendar>
-				<p:commandButton value="Clear" icon="ui-icon-close" onclick="fromDateCalWidget.setDate(null)" 
-					actionListener="#{orderBean.clearDateRangeFilter(true)}" update="mainForm:fromDateRange"/>
+				<p:outputLabel styleClass="block" for="fromDateRange" value="From Date" />
+				<div class="calendarInputContainer">
+					<p:calendar id="fromDateRange" widgetVar="fromDateCalWidget"
+						value="#{orderBean.tableFilter.fromDate}" 
+						pattern="dd/MM/yyyy" styleClass="calendarInput" >
+						<p:ajax event="dateSelect"
+							listener="#{orderBean.onTableFilterChanged()}"
+							update="mainForm:orders" />
+					</p:calendar>
+					<p:commandButton icon="ui-icon-close" onclick="fromDateCalWidget.setDate(null)" styleClass="clearCalendarInput"
+						actionListener="#{orderBean.clearDateRangeFilter(true)}" update="mainForm:fromDateRange"/>
+				</div>
 			</div>
 			<div class="ui-g-6">
-				<p:outputLabel for="toDateRange" value="To Date: " />
-				<p:calendar id="toDateRange" widgetVar="toDateCalWidget"
-					value="#{orderBean.tableFilter.toDate}" 
-					pattern="dd/MM/yyyy">
-					<p:ajax event="dateSelect"
-						listener="#{orderBean.onTableFilterChanged()}"
-						update="mainForm:orders" />
-				</p:calendar>
-				<p:commandButton value="Clear" icon="ui-icon-close" onclick="toDateCalWidget.setDate(null)"
-					actionListener="#{orderBean.clearDateRangeFilter(false)}" update="mainForm:toDateRange" />
+				<p:outputLabel styleClass="block" for="toDateRange" value="To Date" />
+				<div class="calendarInputContainer">
+					<p:calendar id="toDateRange" widgetVar="toDateCalWidget"
+						value="#{orderBean.tableFilter.toDate}" 
+						pattern="dd/MM/yyyy" styleClass="calendarInput">
+						<p:ajax event="dateSelect"
+							listener="#{orderBean.onTableFilterChanged()}"
+							update="mainForm:orders" />
+					</p:calendar>
+					<p:commandButton icon="ui-icon-close" onclick="toDateCalWidget.setDate(null)" styleClass="clearCalendarInput"
+						actionListener="#{orderBean.clearDateRangeFilter(false)}" update="mainForm:toDateRange"  />
+				</div>
 			</div>
+		</div>
+		
+		<div class="ui-g-6">
+			<div class="title">Traffic Source Filter</div>
+			<br />
+			<p:selectOneMenu id="trafficSourceInput" value="#{orderBean.tableFilter.trafficSourceId}">
+			    <p:ajax event="change" update="mainForm:orders" listener="#{orderBean.onTableFilterChanged}" />
+			    <f:selectItem itemLabel="All Traffic Sources" itemValue="-1" />
+			    <f:selectItems value="#{selectionsBean.trafficSourceSelections}" />
+			</p:selectOneMenu>
+		</div>
+		
+		<div class="ui-g-6">
+			<div class="title">Tradesman Filter</div>
+			<ui:fragment rendered="#{not empty orderBean.tableFilter.tradesman}">
+				<h:outputText value="#{orderBean.tableFilter.tradesman.contactName}" />
+				from
+				<h:outputText value="#{orderBean.tableFilter.tradesman.companyName}" styleClass="m-right-10" />
+			</ui:fragment>
+			<p:commandButton value="Pick" actionListener="#{orderBean.pickTradesmanForFilter}">
+				<p:ajax event="dialogReturn" listener="#{orderBean.onTradesmanForFilterSelected}" update="@form" />
+			</p:commandButton>
+			<p:commandButton value="Cancel" rendered="#{not empty orderBean.tableFilter.tradesman}" actionListener="#{orderBean.clearTradesmanFilter()}" update="@form" />
 		</div>
 
 		<div class="ui-g-12">
 			<p:dataTable id="orders" var="order" value="#{orders}"
-				resizableColumns="true" selectionMode="single"
-				selection="#{orderBean.selectedOrder}" rowKey="#{order._id}">
+				resizableColumns="true" selectionMode="single" widgetVar="orders"
+				selection="#{orderBean.selectedOrder}" rowKey="#{order._id}"
+				rowStyleClass="#{orderBean.getRowStyleClass(order)}">
 				<f:facet name="header">
 					<h:commandLink value="xls">
 						<p:dataExporter type="xls" target="orders" fileName="orders" />
@@ -126,23 +154,23 @@
 					update="mainForm" onstart="showLoader()" oncomplete="hideLoader()" />
 
 
-				<p:column width="230" headerText="Id" sortBy="#{order._id}">
-					<h:outputText value="#{order._id}" />
+				<p:column width="215" headerText="Id" sortBy="#{order._id.toHexString()}">
+					<h:outputText value="#{order._id.toHexString()}" />
 				</p:column>
 
-				<p:column width="230"
+				<p:column width="215"
 					rendered="#{orderBean.tableFilter.tableType eq 'GENERAL'}"
-					headerText="User" sortBy="#{order.userId}">
+					headerText="User" sortBy="#{order.userId.toHexString()}">
 					<h:outputText value="#{order.userId.toHexString()}" />
 				</p:column>
 
-				<p:column width="130" headerText="Profession"
-					sortBy="#{order.professionId}">
+				<p:column width="100" headerText="Profession"
+					sortBy="#{professionBean.getNameForProfession(order.professionId)}">
 					<h:outputText
 						value="#{professionBean.getNameForProfession(order.professionId)}" />
 				</p:column>
 
-				<p:column width="80"
+				<p:column width="70"
 					rendered="#{orderBean.tableFilter.tableType eq 'GENERAL'}"
 					headerText="Tradesmen" sortBy="#{fn:length(order.tradesmen)}">
 					<h:outputText value="#{fn:length(order.tradesmen)}" />
@@ -158,6 +186,10 @@
 					rendered="#{orderBean.tableFilter.tableType eq 'COMPLETED'}"
 					sortBy="#{order.location.mapAreaId}">
 					<h:outputText value="#{order.location.mapAreaId}" />
+				</p:column>
+				
+				<p:column headerText="Traffic Source" sortBy="#{trafficSourceBean.getNameForSource(order.trafficSourceId)}">
+					<h:outputText value="#{trafficSourceBean.getNameForSource(order.trafficSourceId)}" />
 				</p:column>
 
 				<p:column rendered="#{param['extended']}" headerText="Order Type"
@@ -197,7 +229,7 @@
 					<h:outputText value="#{order.commissionPercentage}">
 						<f:convertNumber minFractionDigits="2" maxFractionDigits="2" />
 					</h:outputText>%
-			</p:column>
+				</p:column>
 
 				<p:column headerText="Earnings"
 					rendered="#{orderBean.tableFilter.tableType eq 'COMPLETED'}">
@@ -206,7 +238,7 @@
 					</h:outputText>
 				</p:column>
 
-				<p:column width="150" headerText="Created At"
+				<p:column width="130" headerText="Created At"
 					sortBy="#{order.createdAt}">
 					<h:outputText value="#{order.createdAt}">
 						<f:convertDateTime type="date" pattern="HH:mm dd-MM-yyyy" />

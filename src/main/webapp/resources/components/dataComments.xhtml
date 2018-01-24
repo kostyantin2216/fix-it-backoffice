@@ -16,14 +16,14 @@
 <composite:implementation>
 	<h:panelGroup id="commentsContainer">	
 		<div>
-			<p:outputLabel for="commentContent" value="New Comment" />
+			<div class="title" >New Comment</div>
 			<p:inputTextarea id="commentContent" value="#{dataCommentsBean.editableComment.content}" styleClass="full-width" />
 			<p:commandButton value="Save Comment" update="commentsContainer"
 							 actionListener="#{dataCommentsBean.saveEditableComment(cc.attrs.dataType, cc.attrs.dataId)}" />
 		</div>
 		
 		<div>
-			<div class="title">Previous Comments</div>
+			<div class="title m-top-10">Previous Comments</div>
 			<p:dataList id="commentsList" var="comment" value="#{dataCommentsBean.getComments(cc.attrs.dataType, cc.attrs.dataId)}" >
 				<p>#{comment.content}</p>
 				<small><h:outputText value="#{comment.createdAt}" >

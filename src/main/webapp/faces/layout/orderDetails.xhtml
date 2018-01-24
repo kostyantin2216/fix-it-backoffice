@@ -11,10 +11,13 @@
 <ui:composition>
 
 	<div class="padding-9">
-		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'}" action="#{orderBean.saveOrUpdateOrder()}" update="@form" />
-		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'} and close" action="#{orderBean.saveOrUpdateAndUnselectedOrder()}" update="@form" />
-		<p:commandButton value="Delete" rendered="#{not orderView.newOrder}" action="#{orderBean.deleteSelectedOrder()}" update="@form" />
-		<p:commandButton value="Close" action="#{orderBean.unselectOrder()}" update="@form" />
+		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'}" action="#{orderBean.saveOrUpdateOrder}" update="@form" />
+		<p:commandButton value="#{orderView.newOrder ? 'Save' : 'Update'} and close" action="#{orderBean.saveOrUpdateAndUnselectedOrder}" update="@form" />
+		<p:commandButton value="Cancel" rendered="#{empty orderView.cancelReason}" action="#{orderBean.cancelOrder}">
+			<p:ajax onstart="showLoader()" oncomplete="hideLoader()" event="dialogReturn" listener="#{orderBean.onCancellationReasonProvided}" update="@form" />
+		</p:commandButton>
+		<p:commandButton value="Delete" rendered="#{not orderView.newOrder}" action="#{orderBean.deleteSelectedOrder}" update="@form" />
+		<p:commandButton value="Close" action="#{orderBean.unselectOrder}" update="@form" />
 	</div>
 	
 	<h3 class="p-left-8">
@@ -22,12 +25,20 @@
 			New order
 		</ui:fragment>
 		<ui:fragment rendered="#{not orderView.newOrder}">
+			<ui:fragment rendered="#{orderView.cancelled}">
+				Cancelled 
+			</ui:fragment>
 			Order(#{orderView.id}) 
 		</ui:fragment>
 		for #{professionBean.getNameForProfession(orderView.professionId)}
 	</h3>
 	
 	<div class="ui-g">
+	
+		<p:outputPanel styleClass="ui-g-12" rendered="#{orderView.cancelled}">
+			<p:outputLabel value="Cancellation Reason: " />
+			<h:outputText value="#{orderView.cancelReason}" />
+		</p:outputPanel>
 		
 		<div class="ui-g-12">
 			<p:dataTable id="tradesmen" var="tradesman" widgetVar="tradesmenTable"
@@ -71,18 +82,22 @@
 		</div>
 		
 		<div class="ui-g-6">
-			<p:outputLabel value="Address" for="address" styleClass="block" />
-        	<p:autoComplete id="address" value="#{orderView.location.googleAddress}" styleClass="input-address" 
-        					completeMethod="#{orderBean.completeAddress}" forceSelection="true" >
-        		<p:ajax event="itemSelect" listener="#{orderBean.onAddressSelected}" update="@form" />
-        	</p:autoComplete>
+			<fixxit:addressAutocomplete address="#{orderView.location.googleAddress}" onAddressSelected="#{orderBean.onAddressSelected}" ajaxUpdate="@form" />
 		</div>
 	
-		<div class="ui-g-6">
+		<div class="ui-g-3">
 			<p:outputLabel value="User Type" for="userType" styleClass="block"/>
 		    <p:selectOneMenu id="userType" value="#{orderView.userType}" disabled="true">
 		        <f:selectItem itemLabel="Pick User" itemValue="" />
 		        <f:selectItems value="#{selectionsBean.userTypes}" />
+		    </p:selectOneMenu>
+		</div>
+		
+		<div class="ui-g-3">
+			<p:outputLabel value="Traffic Source" for="trafficSource" styleClass="block"/>
+		    <p:selectOneMenu id="trafficSource" value="#{orderView.trafficSourceId}" >
+		        <f:selectItem itemLabel="Pick Source" itemValue="" />
+		        <f:selectItems value="#{selectionsBean.trafficSourceSelections}" />
 		    </p:selectOneMenu>
 		</div>
 

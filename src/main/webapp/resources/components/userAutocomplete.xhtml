@@ -10,16 +10,17 @@
 
 <composite:interface>
 	<composite:attribute name="user" type="com.fixit.core.data.mongo.CommonUser" required="true"/>
-	<composite:attribute name="onUserSelected" method-signature="void onUserSelected(org.primefaces.event.SelectEvent)" required="true" />
+	<composite:attribute name="onUserSelected" method-signature="void onUserSelected(org.primefaces.event.SelectEvent)" />
 	<composite:attribute name="onUserCreated" method-signature="void onUserCreated(org.primefaces.event.SelectEvent)" />
-	<composite:attribute name="ajaxUpdate" type="java.lang.String" default="userAutocompleteContainer"></composite:attribute>
+	<composite:attribute name="ajaxUpdate" type="java.lang.String" default="userAutocompleteContainer" />
+	<composite:attribute name="disabled" type="java.lang.Boolean" default="false"></composite:attribute>
 </composite:interface>
 
 <composite:implementation>
-	<h:panelGroup id="userAutocompleteContainer">
+	<h:panelGroup id="userAutocompleteContainer" styleClass="user-autocomplete">
 		<p:outputLabel value="User" for="user" styleClass="block" />
 		<p:autoComplete id="user" value="#{cc.attrs.user}" styleClass="#{empty cc.attrs.onUserCreated ? 'input-user-full' : 'input-user'}" 
-			completeMethod="#{userBean.completeUser}" var="user" 
+			completeMethod="#{userBean.completeUser}" var="user" disabled="#{cc.attrs.disabled}"
 			itemLabel="#{user.telephone}#{not empty user ? ', ' : ''}#{user.name}"
 			itemValue="#{user}" converter="#{userUiConverter}" forceSelection="true">
 			<p:ajax event="itemSelect" listener="#{cc.attrs.onUserSelected}" update="#{cc.attrs.ajaxUpdate}" />
@@ -36,7 +37,7 @@
 				<h:outputText value="#{user.telephone}" />
 			</p:column>
 		</p:autoComplete>
-		<p:commandButton rendered="#{not empty cc.attrs.onUserCreated}" styleClass="btn-new-user" value="Create" 
+		<p:commandButton rendered="#{not empty cc.attrs.onUserCreated and not cc.attrs.disabled}" styleClass="btn-new-user" value="Create" 
 						 actionListener="#{userBean.showCreateUserDialog}">
 			<p:ajax event="dialogReturn" listener="#{cc.attrs.onUserCreated}" update="#{cc.attrs.ajaxUpdate}" />
 		</p:commandButton>

@@ -13,7 +13,7 @@ import javax.faces.bean.ViewScoped;
 import org.primefaces.context.RequestContext;
 import org.springframework.util.StringUtils;
 
-import com.fixit.bo.utils.FacesUtils;
+import com.fixit.bo.utils.DialogUtils;
 import com.fixit.bo.views.TempUserView;
 import com.fixit.components.users.UserFactory;
 import com.fixit.core.data.mongo.CommonUser;
@@ -57,7 +57,7 @@ public class UserBean {
 	}
 	
 	public void showCreateUserDialog() {		
-		FacesUtils.showDialog("dfCreateUser", 190, 400, false, true);
+		DialogUtils.showUserCreation();
 	}
 	
 	public void createUserAndCloseDialog() {

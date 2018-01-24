@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+   	  xmlns:fixxit = "http://java.sun.com/jsf/composite/components" >
+<ui:composition>
+
+	<div class="padding-9">
+		<p:commandButton value="Update" rendered="#{orderRequestView.editble}" action="#{orderRequestBean.updateOrderRequest()}" update="@form" />
+		<p:commandButton value="Update and close" rendered="#{orderRequestView.editble}" action="#{orderRequestBean.updateAndUnselectOrderRequest()}" update="@form" />
+		<p:commandButton value="Deny" rendered="#{orderRequestView.pending}" action="#{orderRequestBean.denyOrderRequest()}" update="@form" >
+			<p:ajax onstart="showLoader()" oncomplete="hideLoader()" event="dialogReturn" listener="#{orderRequestBean.onDenyReasonGiven}" update="@form" />
+		</p:commandButton>
+		<p:commandButton value="Fulfill" onstart="showLoader()" oncomplete="hideLoader()" rendered="#{orderRequestView.pending}" action="#{orderRequestBean.fulfillOrderRequest()}" update="@form" />
+		<p:commandButton value="Close" action="#{orderRequestBean.unselectOrderRequest()}" update="@form" />
+		
+		<h:outputText styleClass="m-left-10" rendered="#{!orderRequestView.editble}" value="Can only edit pending requests." />
+	</div>
+	
+	<h3 class="p-left-8">
+		<ui:fragment rendered="#{orderRequestView.pending}">
+			Pending 
+		</ui:fragment>
+		<ui:fragment rendered="#{orderRequestView.fulfilled}">
+			Fulfilled 
+		</ui:fragment>
+		<ui:fragment rendered="#{orderRequestView.denied}">
+			Denied 
+		</ui:fragment>
+		Order Request(#{orderRequestView.id}) 
+		for #{professionBean.getNameForProfession(orderRequestView.professionId)}
+	</h3>
+	
+	<div class="ui-g">
+		<p:outputPanel rendered="#{orderRequestView.denied}" styleClass="ui-g-12">
+			<p:outputLabel value="Denied Because: "/>
+			<h:outputText value="#{orderRequestView.reasonDenied}" />
+		</p:outputPanel>
+	
+		<div class="ui-g-6">
+			<p:selectBooleanCheckbox id="notifyTradesmen" value="#{orderRequestView.notifyTradesmen}" styleClass="m-right-10" disabled="#{!orderRequestView.editble}"/>
+			<p:outputLabel value="Notify Tradesmen" for="notifyTradesmen" />
+		</div>
+		
+		<p:outputPanel styleClass="ui-g-6" rendered="#{orderRequestView.editble}">
+			<p:selectBooleanCheckbox id="newRequest" value="#{orderRequestView.newRequest}" styleClass="m-right-10" />
+			<p:outputLabel value="New Request" for="newRequest" />
+		</p:outputPanel>
+		
+		<div class="ui-g-12">
+			<p:dataTable id="tradesmen" var="tradesman" widgetVar="tradesmenTable"
+				 		 value="#{orderRequestView.tradesmen}" resizableColumns="true" emptyMessage="No tradesmen have been selected for this order" >
+				<f:facet name="header">
+					<h:outputText value="Tradesmen" />
+		            				 
+		          	<p:commandButton value="Add" icon="ui-icon-plus" actionListener="#{orderBean.chooseTradesman}" styleClass="float-right" rendered="#{orderRequestView.editble}">
+		          		<p:ajax event="dialogReturn" listener="#{orderBean.onTradesmanChosen}" update="@form" />
+		          	</p:commandButton> 
+				</f:facet>
+		
+				<p:column width="230" headerText="Id" sortBy="#{tradesman._id}" >
+					<h:outputText value="#{tradesman._id.toHexString()}" />
+				</p:column>
+		 
+				<p:column headerText="Contact Name" sortBy="#{tradesman.contactName}" >
+					<h:outputText value="#{tradesman.contactName}" />
+				</p:column>
+		
+				<p:column headerText="Company Name" sortBy="#{tradesman.companyName}">
+					<h:outputText value="#{tradesman.companyName}" />
+				</p:column>
+		
+				<p:column width="150" headerText="Telephone" sortBy="#{tradesman.telephone}">
+					<h:outputText value="#{tradesman.telephone}" />
+				</p:column>
+		
+				<p:column width="65" headerText="Active" sortBy="#{tradesman.active}" >
+					<h:outputText value="#{tradesman.active ? 'Yes' : 'No'}" />
+				</p:column>
+				
+				<p:column style="width:32px;text-align: center" rendered="#{orderRequestView.editble}">
+                    <p:commandButton icon="ui-icon-close" actionListener="#{orderRequestView.removeTradesman(tradesman)}" update="@form"/>
+                </p:column>
+			</p:dataTable>
+		</div>
+		
+		<div class="ui-g-6">
+			<fixxit:userAutocomplete user="#{orderRequestView.user}" onUserCreated="#{orderBean.onUserCreated}" ajaxUpdate="@form" disabled="#{!orderRequestView.editble}" />
+		</div>
+		
+		<div class="ui-g-6">
+			<fixxit:addressAutocomplete address="#{orderRequestView.address}" onAddressSelected="#{orderBean.onAddressSelected}" ajaxUpdate="@form" disbled="#{!orderRequestView.editble}" />
+		</div>
+
+		<div class="ui-g-3" >
+			<p:outputLabel value="User Comment" for="comment" styleClass="block" />
+    		<p:inputTextarea id="comment" value="#{orderRequestView.comment}" rows="6" disabled="#{!orderRequestView.editble}"/>
+		</div>
+			
+		<div class="ui-g-9">
+			<div class="ui-g-6">
+				<p:outputLabel value="Traffic Source" for="trafficSource" styleClass="block"/>
+			    <p:selectOneMenu id="trafficSource" value="#{orderRequestView.trafficSourceId}" disabled="#{!orderRequestView.editble}" >
+			        <f:selectItem itemLabel="Pick Source" itemValue="" />
+			        <f:selectItems value="#{selectionsBean.trafficSourceSelections}" />
+			    </p:selectOneMenu>
+			</div>
+			
+			<div class="ui-g-6">
+				<p:outputLabel value="Order Type" for="orderType" styleClass="block"/>
+		        <p:selectOneMenu id="orderType" value="#{orderRequestView.orderType}" disabled="true">
+		            <f:selectItems value="#{selectionsBean.orderTypes}" />
+		        </p:selectOneMenu>
+			</div>
+			
+			<div class="ui-g-6" >
+				<p:outputLabel value="Created At" for="createdAt" styleClass="block" />
+				<p:calendar id="createdAt" value="#{orderRequestView.createdAt}" pattern="dd/MM/yyyy HH:mm" disabled="true"/>
+			</div>
+		</div>
+		
+		<div class="ui-g-12" >
+			<p:outputLabel value="Job Reasons" for="jobReasons" />
+			<p:selectManyCheckbox id="jobReasons" value="#{orderRequestView.jobReasons}" layout="grid" columns="3" disabled="#{!orderRequestView.editble}">
+		        <f:selectItems value="#{selectionsBean.getJobReasonsForProfession(orderRequestView.professionId)}" />
+		    </p:selectManyCheckbox>
+		</div>
+		
+		<div class="ui-g-12">
+			<fixxit:dataComments dataType="3" dataId="#{orderRequestView.id}" />
+		</div>
+		
+	</div>
+	
+	<div class="padding-9">
+		<p:commandButton value="Update" rendered="#{orderRequestView.editble}" action="#{orderRequestBean.updateOrderRequest()}" update="@form" />
+		<p:commandButton value="Update and close" rendered="#{orderRequestView.editble}" action="#{orderRequestBean.updateAndUnselectOrderRequest()}" update="@form" />
+		<p:commandButton value="Deny" rendered="#{orderRequestView.pending}" action="#{orderRequestBean.denyOrderRequest()}" update="@form" >
+			<p:ajax event="dialogReturn" listener="#{orderRequestBean.onDenyReasonGiven}" update="@form" />
+		</p:commandButton>
+		<p:commandButton value="Fulfill" onstart="showLoader()" oncomplete="hideLoader()" rendered="#{orderRequestView.pending}" action="#{orderRequestBean.fulfillOrderRequest()}" update="@form" />
+		<p:commandButton value="Close" action="#{orderRequestBean.unselectOrderRequest()}" update="@form" />
+		
+		<h:outputText styleClass="m-left-10" rendered="#{!orderRequestView.editble}" value="Can only edit pending requests." />
+	</div>
+	
+</ui:composition>
+</html>

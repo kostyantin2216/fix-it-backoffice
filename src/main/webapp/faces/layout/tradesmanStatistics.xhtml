@@ -15,7 +15,8 @@
 
 	<ui:fragment rendered="#{not empty tradesmenBean.userLeads}" >
 		<p:dataTable id="leads" var="lead"
-			value="#{tradesmenBean.userLeads}" resizableColumns="true">
+			value="#{tradesmenBean.userLeads}" resizableColumns="true"
+			rowStyleClass="#{lead.order.orderComplete ? 'success' : (lead.order.orderCancelled ? 'warning' : null)}">
 			<f:facet name="header">
 				<h:commandLink value="xls">
 					<p:dataExporter type="xls" target="tradesmen" fileName="tradesmen" />
@@ -40,7 +41,7 @@
 				<p:columnToggler datasource="leads" trigger="toggler" />
 			</f:facet>
 	
-			<p:column rendered="#{param['extended']}" headerText="Id" >
+			<p:column width="215" headerText="Order Id" >
 				<h:outputText value="#{lead.user._id.toHexString()}" />
 			</p:column>
 			
@@ -56,7 +57,7 @@
 				<h:outputText value="#{lead.user.name}" />
 			</p:column>
 			
-			<p:column headerText="Telephone">
+			<p:column width="130" headerText="Telephone">
 				<h:outputText value="#{lead.user.telephone}" />
 			</p:column>
 			
@@ -64,7 +65,7 @@
 				<h:outputText value="#{lead.user.email}" />
 			</p:column>
 			
-			<p:column headerText="Profession">
+			<p:column width="80" headerText="Profession">
 				<h:outputText value="#{professionBean.getNameForProfession(lead.order.professionId)}" />
 			</p:column>
 			
@@ -76,7 +77,7 @@
 				<h:outputText value="#{lead.order.comment}" />
 			</p:column>
 			
-			<p:column headerText="Date">
+			<p:column width="130" headerText="Date">
 				<h:outputText value="#{lead.order.createdAt}" >
 					<f:convertDateTime type="date" pattern="HH:mm dd-MM-yyyy"/>
 				</h:outputText>

@@ -3,6 +3,37 @@
     margin-bottom: 10px;
     font-weight: bold;
 }
+.inline-label {
+	margin-right: 5px;
+}
+tr.warning td {
+    background-color: #ff8c00;
+}
+tr.warning.ui-state-hover td {
+   	color: white;
+}
+tr.success td {
+    background-color: #32CD32;
+}
+tr.success.ui-state-hover td {
+   	color: white;
+}
+
+.table-row-color-key {
+    margin-top: 12px;
+}
+.table-row-color-key span {
+    padding: 10px;
+    color: white;
+    font-weight: bold;
+}
+.table-row-color-key span.warning-key {
+    background-color: #ff8c00;
+}
+.table-row-color-key span.success-key {
+	background-color: #32CD32;
+}
+
 .input-address, .input-address > input {
 	width: 100%;
 }
@@ -23,6 +54,36 @@ button.btn-new-user {
 	border-bottom: 1px solid #000;
 }
 
+.tradesman-line .logo {
+	max-width: 333px;
+	max-height: 170px;
+	display: block;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.dialog-direct-order .user-autocomplete {
+	display: block;
+}
+
+.dialog-direct-order .address-autocomplete {
+	display: block;
+	width: 98%;
+}
+
+.dialog-direct-order textarea {
+	width: 95%;
+}
+
+.calendarInputContainer .calendarInput {
+	width: 80%;
+	float: left;
+}
+
+.calendarInputContainer .clearCalendarInput {
+	width: 14%;
+}
+
 /* Primefaces override */
 .ui-datatable .ui-datatable-header {
 	padding: 10px 10px;
@@ -37,11 +98,11 @@ button.btn-new-user {
 }
 
 .ui-widget .ui-widget td {
-    font-size: 0.9em;
+    font-size: 0.8em;
 }
 
 .ui-widget .ui-widget th {
-    font-size: 0.9em;
+    font-size: 0.8em;
 }
 
 .ui-datatable .ui-widget-header a {
@@ -525,6 +586,10 @@ button.btn-new-user {
 	display: block;
 }
 
+.bold {
+	font-weight: bold;
+}
+
 .full-width-max {
 	max-width: 100%;
 }
@@ -569,12 +634,24 @@ button.btn-new-user {
 	margin-right: 10px;
 }
 
+.m-top-5 {
+	margin-top: 5px;
+}
+
 .m-top-10 {
 	margin-top: 10px;
 }
 
 .m-top-20 {
 	margin-top: 20px;
+}
+
+.m-top-30 {
+	margin-top: 30px;
+}
+
+.m-top-100 {
+	margin-top: 100px;
 }
 
 .m-bottom-10 {

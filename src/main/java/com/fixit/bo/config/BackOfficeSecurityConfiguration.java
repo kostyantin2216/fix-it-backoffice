@@ -31,7 +31,9 @@ public class BackOfficeSecurityConfiguration extends WebSecurityConfigurerAdapte
         	.antMatchers("/resources/**").permitAll()
             .anyRequest().authenticated()
             .and()
-        .formLogin();
+        .formLogin()
+        	.and()
+        .rememberMe();
     }
     
 }

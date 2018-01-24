@@ -10,5 +10,6 @@ package com.fixit.bo.general;
 public enum OrderTableType {
 	GENERAL,
 	ONGOING,
-	COMPLETED;
+	COMPLETED,
+	CANCELLED;
 }

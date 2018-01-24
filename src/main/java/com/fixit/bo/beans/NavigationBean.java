@@ -33,8 +33,9 @@ public class NavigationBean {
 	private enum NavigationItem {
 		TRADESMEN("Tradesmen", "/faces/tradesmen.xhtml", "ui-icon-person"),
 		ORDERS("Orders", "/faces/orders.xhtml", "ui-icon-cart"),
+		ORDER_REQUESTS("Order Requests", "/faces/orderRequests.xhtml", "ui-icon-notice"),
 		MAP_AREAS("Map Areas", "/faces/mapAreas.xhtml", "ui-icon-search"),
-		STORED_PROPERTIES("Stored Properties", "/faces/storedProperties.xhtml", "ui-icon-wrench");
+		STORED_PROPERTIES("Configurations", "/faces/configurations.xhtml", "ui-icon-wrench");
 		
 		final String title;
 		final String viewId;

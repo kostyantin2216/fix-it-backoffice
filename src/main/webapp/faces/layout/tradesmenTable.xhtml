@@ -9,9 +9,17 @@
 	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
 <ui:composition>
 
+	<p:outputPanel styleClass="m-bottom-10">
+		<p:selectOneButton id="tradesmanTableType" value="#{tradesmenBean.tableType}">
+			<p:ajax update="@form" event="change"/>
+			<f:selectItems value="#{selectionsBean.tradesmenTableTypes}" />
+		</p:selectOneButton>
+	</p:outputPanel>
+
 	<p:dataTable id="tradesmen" var="tradesman" widgetVar="tradesmenTable" styleClass="tradesmenTable"
 				 value="#{tradesmenBean.tradesmen}" filteredValue="#{tradesmenBean.filteredTradesmen}" resizableColumns="true" 
-				 selectionMode="single" selection="#{tradesmenBean.selectedTradesman}" rowKey="#{tradesman._id}">
+				 selectionMode="single" selection="#{tradesmenBean.selectedTradesman}" rowKey="#{tradesman._id}"
+				 rowStyleClass="#{tradesmenBean.getRowStyleClassForTradesman(tradesman)}">
 		
 		<f:facet name="header">
 			<h:commandLink value="xls">
@@ -60,7 +68,7 @@
 			onstart="showLoader()"
 			oncomplete="hideLoader()" />
 
-		<p:column width="230" headerText="Id" sortBy="#{tradesman._id}" filterBy="#{tradesman._id.toHexString()}" 
+		<p:column width="210" headerText="Id" sortBy="#{tradesman._id}" filterBy="#{tradesman._id.toHexString()}" 
 				  filterMatchMode="contains">
 			<h:outputText value="#{tradesman._id.toHexString()}" />
 		</p:column>
@@ -71,7 +79,8 @@
 		</p:column>
 
 		<p:column headerText="Professions" filterBy="#{tradesmenBean.getProfessionNames(tradesman)}"
-				  exportFunction="#{tradesmenBean.exportProfessionsColumn}" filterMatchMode="contains">
+				  exportFunction="#{tradesmenBean.exportProfessionsColumn}" filterMatchMode="contains"
+				  rendered="#{tradesmenBean.tableType eq 'GENERAL'}">
 			<h:outputText value="#{tradesmenBean.getProfessionNames(tradesman)}" />
 		</p:column>
 
@@ -90,20 +99,51 @@
 		</p:column>
 
 		<p:column headerText="Email" sortBy="#{tradesman.email}"
-				  filterBy="#{tradesman.email}" filterMatchMode="contains">
+				  filterBy="#{tradesman.email}" filterMatchMode="contains"
+				  rendered="#{tradesmenBean.tableType eq 'GENERAL'}">
 			<h:outputText value="#{tradesman.email}" />
 		</p:column>
 
 		<p:column headerText="Telephone" sortBy="#{tradesman.telephone}"
-				  filterBy="#{tradesman.telephone}" filterMatchMode="contains">
+				  filterBy="#{tradesman.telephone}" filterMatchMode="contains"
+				  rendered="#{tradesmenBean.tableType ne 'STATUS'}">
 			<h:outputText value="#{tradesman.telephone}" />
 		</p:column>
 
-		<p:column width="70" headerText="Priority" sortBy="#{tradesman.priority}">
+		<p:column width="70" headerText="Priority" sortBy="#{tradesman.priority}"
+				  rendered="#{tradesmenBean.tableType ne 'STATUS'}">
 			<h:outputText value="#{tradesman.priority}" />
 		</p:column>
+		
+		<p:column width="110" headerText="ID Provided" sortBy="#{tradesman.idProvided}" 
+				  filterBy="#{tradesman.idProvided}" filterMatchMode="equals" 
+				  rendered="#{tradesmenBean.tableType eq 'STATUS'}" >
+			<f:facet name="filter">
+                <p:selectOneButton onchange="PF('tradesmenTable').filter()">
+                    <f:converter converterId="javax.faces.Boolean" />
+                    <f:selectItem itemLabel="All" itemValue="" />
+                    <f:selectItem itemLabel="Y" itemValue="true" />
+                    <f:selectItem itemLabel="N" itemValue="false" />
+            	</p:selectOneButton>
+            </f:facet>
+			<h:outputText value="#{tradesman.idProvided ? 'Yes' : 'No'}" />
+		</p:column>
+		
+		<p:column width="110" headerText="TC Provided" sortBy="#{tradesman.tradeCertificateProvided}" 
+				  filterBy="#{tradesman.tradeCertificateProvided}" filterMatchMode="equals"
+				  rendered="#{tradesmenBean.tableType eq 'STATUS'}" >
+			<f:facet name="filter">
+                <p:selectOneButton onchange="PF('tradesmenTable').filter()">
+                    <f:converter converterId="javax.faces.Boolean" />
+                    <f:selectItem itemLabel="All" itemValue="" />
+                    <f:selectItem itemLabel="Y" itemValue="true" />
+                    <f:selectItem itemLabel="N" itemValue="false" />
+            	</p:selectOneButton>
+            </f:facet>
+			<h:outputText value="#{tradesman.tradeCertificateProvided ? 'Yes' : 'No'}" />
+		</p:column>
 
-		<p:column width="80" headerText="Active" sortBy="#{tradesman.active}" filterBy="#{tradesman.active}" 
+		<p:column width="75" headerText="Active" sortBy="#{tradesman.active}" filterBy="#{tradesman.active}" 
 				  filterMatchMode="equals">
 			<f:facet name="filter">
                 <p:selectOneButton onchange="PF('tradesmenTable').filter()">
@@ -123,6 +163,10 @@
 		<p:column rendered="#{param['extended']}"
 			headerText="Feature Image URL">
 			<h:outputText value="#{tradesman.featureImageUrl}" />
+		</p:column>
+		
+		<p:column width="80" rendered="#{tradesmenBean.tableType eq 'ORDER'}">
+			<p:commandButton value="Order" action="#{tradesmenBean.directOrder(tradesman)}"/>
 		</p:column>
 	</p:dataTable>
 
